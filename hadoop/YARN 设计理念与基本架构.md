@@ -15,5 +15,22 @@ MRv2把资源管理功能抽象成一个**独立的通用的**系统YARN，这�
 
 #### 2.1.2　轻量级弹性计算平台
 - 发展趋势：出现越来越多的计算框架解决某一特定的问题，比如支持离线处理的MapReduce，支持在线处理的Storm，迭代式计算框架Spark 流式处理框架S4
-- 使用一种
-YARN是一个弹性的计算平台，
+- 使用一种计算框架一个集群的话运维成本高、资源利用率低，因此会倾向于共享集群，对资源统一管理并对各个任务所需要的资源进行隔离（比如使用cgroup）
+- YARN就是这样一个轻量级弹性计算平台，能够对多种框架进行统一管理
+    - 资源利用率高、维护成本低、数据共享（不需要跨集群移动数据）
+
+#### hadoop1.0和2.0以及MRv1和MRv2的区别
+- hadoop1.0的MR有一个JobTracker和多个TaskTracker组成
+- hadoop2.0的优化点：
+    - 从单NameNode制约拓展性到提出Federation HDFS（联邦HDFS），让多个NameNode分管不同的目录进而实现访问隔离和横向扩展，解决单点故障
+    - 针对MRv1不足，将JobTracker中的资源管理和作业控制功能分别交由组件ResourceManager（负责所有应用的资源分配）和ApplicationMaster（负责管理一个应用）
+- MRv1由三部分组成
+    - 编程模型：把问题抽象成Map和Reduce，Map把输入解析成k/v处理后写入**本地磁盘**，Reduce则做规约处理，把结果写入HDFS
+    - 数据处理引擎：MapTask和ReduceTask组成
+    - 运行时环境：一个JobTracker（负责资源管理和所有作业控制）和多个TaskTracker（负责接收JobTracker命令并执行）构成
+- MRv2跟MRv1相比，运行时环境不同，体现在YARN负责资源管理和调度，ApplicationMaster负责一个作业的管理
+
+### 2.3 YARN基本设计思想
+
+
+### 2.4 基本架构
