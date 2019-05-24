@@ -30,7 +30,20 @@ MRv2把资源管理功能抽象成一个**独立的通用的**系统YARN，这�
     - 运行时环境：一个JobTracker（负责资源管理和所有作业控制）和多个TaskTracker（负责接收JobTracker命令并执行）构成
 - MRv2跟MRv1相比，运行时环境不同，体现在YARN负责资源管理和调度，ApplicationMaster负责一个作业的管理
 
+- 已MR为核心和以YARN为核心的软件栈对比
+
+![image](https://raw.githubusercontent.com/fancyChuan/read-the-source/master/hadoop/img/%E4%BB%A5MR%E4%B8%BA%E6%A0%B8%E5%BF%83%E4%B8%8E%E4%BB%A5YARN%E4%B8%BA%E6%A0%B8%E5%BF%83%E7%9A%84%E8%BD%AF%E4%BB%B6%E6%A0%88%E5%AF%B9%E6%AF%94.png)
+
 ### 2.3 YARN基本设计思想
 
+#### 2.3.1 基本框架对比
+- 第一代MapReduce框架基本架构
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/第一代MR框架基本架构.png?raw=true)
+
+- 第二代MR基本架构
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/第二代MR框架基本架构.png??raw=true)
+#### 2.3.2 编程模型对比
 
 ### 2.4 基本架构
