@@ -43,7 +43,13 @@ MRv2把资源管理功能抽象成一个**独立的通用的**系统YARN，这�
 
 - 第二代MR基本架构
 
-![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/第二代MR框架基本架构.png??raw=true)
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/第二代MR框架基本架构.png?raw=true)
 #### 2.3.2 编程模型对比
-
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/第二代MR框架基本架构2.png?raw=true)
 ### 2.4 基本架构
+YARN总体上认识Master/Slave结构，RM为master而NM是slave，RM负责对NM上的资源进行统一管理和调度。ApplicationMaster负责想ResourceManager申请资源，并要求NodeManager启动可以占用一定资源的任务。不同的ApplicationMaster在不同的节点上，不会互相影响
+#### 2.4.1 YARN基本组成结构
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/第二代MR框架基本架构2.png?raw=true)
+
+如上图所示，YARN主要由ResourceManager、NodeManager、ApplicationMaster和Container等几个组件构成
+- 1.ResourceManager
