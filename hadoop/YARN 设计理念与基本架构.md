@@ -91,3 +91,6 @@ YARN上有短应用程序（运行时间有限）和长应用程序（如HBASE s
 - 步骤7　各个任务通过某个RPC 协议向ApplicationMaster 汇报自己的状态和进度，以让ApplicationMaster 随时掌握各个任务的运行状态，从而可以在任务失败时重新启动任务。
 > 在应用程序运行过程中，用户可随时通过RPC 向ApplicationMaster 查询应用程序的当前运行状态。
 - 步骤8　应用程序运行完成后，ApplicationMaster 向ResourceManager 注销并关闭自己。
+
+
+todo:版本变迁的情况
