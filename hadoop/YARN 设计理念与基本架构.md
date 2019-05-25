@@ -53,3 +53,24 @@ YARN总体上认识Master/Slave结构，RM为master而NM是slave，RM负责对NM
 
 如上图所示，YARN主要由ResourceManager、NodeManager、ApplicationMaster和Container等几个组件构成
 - 1.ResourceManager
+
+
+
+
+- 4.Container
+    - YARN中的资源抽象，封装了某个节点上的多维度资源（内存、磁盘、网络、CPU等）
+    - AM向RM申请资源时，返回的资源是用Container表示的
+    - 不同MRv1中的slot，Container是一个动态资源划分单位，根据application需求动态生成
+    - 使用轻量级隔离机制Cgroups进行资源隔离
+#### 2.4.2 YARN通信协议
+任何组件之间通过RPC协议相互通信，通信双方一个为client，另一个为server端，而且是client主动连接server，也就是说YARN采取的是**拉式(pull-based)通信模型**
+
+YARN主要涉及的协议：
+- 作业提交客户端与RM之间的协议-ApplicationClientProtocol，包括提交应用程序、查询应用程序状态等
+- Admin管理员与RM之间的协议-ResourceManagerAdministratorProtocol，包括更新系统配置文件如节点黑白名单、用户队列权限等
+- AM和RM之间的协议-ApplicationMasterProtocol，AM通过该协议注册和注销自己，并为各任务申请资源
+- AN和NM之间的协议-ContainerManagementProtocol，AM通过该协议要求NM启动或停止Container，获取各个Container的使用状态等
+- NM和RM之间的协议-ResourceTracker，NM通过该协议想RM注册，并发送心跳信息汇报节点资源使用情况和Container运行情况
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/YARN的RPC协议.png?raw=true)
+
