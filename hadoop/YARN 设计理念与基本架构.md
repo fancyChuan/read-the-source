@@ -74,3 +74,20 @@ YARN主要涉及的协议：
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/YARN的RPC协议.png?raw=true)
 
+
+### 2.5 YARN工作流程
+YARN上有短应用程序（运行时间有限）和长应用程序（如HBASE service）两类，也就是一类是直接处理数据，另一个用于部署服务，在服务至上处理数据
+
+运行运行应用有两个阶段：1.申请启动ApplicationMaster 2.由ApplicationMaster创建程序、申请资源并监控运行过程
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/YARN的工作流程.png?raw=true)
+
+- 步骤1　用户向YARN 中提交应用程序， 其中包括ApplicationMaster 程序、启动ApplicationMaster 的命令、用户程序等。
+- 步骤2　ResourceManager 为该应用程序分配第一个Container， 并与对应的NodeManager 通信，要求它在这个Container 中启动应用程序的ApplicationMaster。
+- 步骤3　ApplicationMaster 首先向ResourceManager 注册， 这样用户可以直接通过ResourceManage 查看应用程序的运行状态，然后它将为各个任务申请资源，并监控它的运行状态，直到运行结束，即重复步骤4~7。
+- 步骤4　ApplicationMaster 采用轮询的方式通过RPC 协议向ResourceManager 申请和领取资源。
+- 步骤5　一旦ApplicationMaster 申请到资源后，便与对应的NodeManager 通信，要求它启动任务。
+- 步骤6　NodeManager 为任务设置好运行环境（包括环境变量、JAR 包、二进制程序等）后，将任务启动命令写到一个脚本中，并通过运行该脚本启动任务。
+- 步骤7　各个任务通过某个RPC 协议向ApplicationMaster 汇报自己的状态和进度，以让ApplicationMaster 随时掌握各个任务的运行状态，从而可以在任务失败时重新启动任务。
+> 在应用程序运行过程中，用户可随时通过RPC 向ApplicationMaster 查询应用程序的当前运行状态。
+- 步骤8　应用程序运行完成后，ApplicationMaster 向ResourceManager 注销并关闭自己。
