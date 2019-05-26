@@ -1257,9 +1257,9 @@ public class Job extends JobContextImpl implements JobContext {
    */
   public void submit() 
          throws IOException, InterruptedException, ClassNotFoundException {
-    ensureState(JobState.DEFINE);
-    setUseNewAPI();
-    connect();
+    ensureState(JobState.DEFINE); // 检查任务的阶段是否合理，是否有JobTracker跟踪任务
+    setUseNewAPI(); // 设置使用新的MR API
+    connect(); // 连接集群，得到 Cluster cluster，应该可以理解为跟RM交互，得到JobTracker
     final JobSubmitter submitter = 
         getJobSubmitter(cluster.getFileSystem(), cluster.getClient());
     status = ugi.doAs(new PrivilegedExceptionAction<JobStatus>() {
@@ -1285,7 +1285,7 @@ public class Job extends JobContextImpl implements JobContext {
     if (state == JobState.DEFINE) {
       submit();
     }
-    if (verbose) {
+    if (verbose) { // 是否要把日志显示在控制台
       monitorAndPrintJob();
     } else {
       // get the completion poll interval from the client.
