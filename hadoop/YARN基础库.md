@@ -28,3 +28,9 @@ RPC通常采用客户机/服务器模型，两个相互协议的通信模型实�
 - 服务器端处理框架：Hadoop RPC采用了基于Reactor设计模型的事件驱动I/O模型
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RPC整体架构.png?raw=true)
+
+
+
+
+### 3.5 状态机
+YARN中每种状态由四元组标识：preState/postState/event/hook(回调函数)
