@@ -5,7 +5,7 @@ import org.apache.hadoop.ipc.ProtocolSignature;
 import java.io.IOException;
 
 /**
- * 自定义RPC客户端
+ * 自定义RPC协议的实现
  */
 public class ClientProtocolImpl implements ClientProtocol {
     @Override

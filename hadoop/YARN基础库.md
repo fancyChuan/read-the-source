@@ -29,8 +29,16 @@ RPC通常采用客户机/服务器模型，两个相互协议的通信模型实�
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RPC整体架构.png?raw=true)
 
+#### 3.3.4 Hadoop RPC使用方法
+Hadoop RPC对外提供了两种接口：getProxy/waitForProxy用于构造一个客户端代理对象， RPC.builder().build() 为某个协议实例构造一个服务器对象
 
+步骤大致为：
+- 1.定义RPC协议：ClientProtocol
+- 2.实现RPC协议：ClientProtocolImpl
+- 3.构造并启动RPC Server：MyRPCServer
+- 4.构造RPC client并发送RPC请求：MyRPCClient
 
+参见 [自定义RPC实现](https://github.com/fancyChuan/read-the-source/tree/master/hadoop/rpc)
 
 ### 3.5 状态机
 YARN中每种状态由四元组标识：preState/postState/event/hook(回调函数)
