@@ -49,8 +49,11 @@ Hadoop RPC对外提供了两种接口：getProxy/waitForProxy用于构造一个�
     - 与Hadoop1.x中的RPC近支持Writable序列化方式不同，Hadoop2.x允许使用其他框架，通过RPC.setProtocolEngine()设定
 - ipc.Client类
     - 主要功能：发送远程过程调用信息并接收执行结果，有两个中啊哟的内部类：Call和Connection
-    - Call类：
-    - Connection类：
+    - Call类：封装一个RPC请求
+    - Connection类：Client和Server之间维护一个通信连接
+    - 处理流程如下图：
+    
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RPC-Client处理流程.png?raw=true)
 
 ### 3.5 状态机
 YARN中每种状态由四元组标识：preState/postState/event/hook(回调函数)

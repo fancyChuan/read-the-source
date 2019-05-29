@@ -308,10 +308,10 @@ public class Client {
     }
   }
 
-  /** Thread that reads responses and notifies callers.  Each connection owns a
+  /** Client和Server之间维护一个通信连接
+   * Thread that reads responses and notifies callers.  Each connection owns a
    * socket connected to a remote address.  Calls are multiplexed through this
    * socket: responses may be delivered out of order.
-   * Client和Server之间维护一个通信连接
    */
   private class Connection extends Thread {
     private InetSocketAddress server;             // server ip:port
