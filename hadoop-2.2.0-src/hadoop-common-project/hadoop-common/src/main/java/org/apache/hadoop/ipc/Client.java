@@ -248,9 +248,9 @@ public class Client {
    * Class that represents an RPC call
    */
   static class Call {
-    final int id;               // call id
+    final int id;               // call id 因为Server端通过异步方式处理请求，需要通过id来识别不同的函数调用
     final int retry;           // retry count
-    final Writable rpcRequest;  // the serialized rpc request
+    final Writable rpcRequest;  // the serialized rpc request 函数调用信息，也就是rpc请求
     Writable rpcResponse;       // null if rpc has error
     IOException error;          // exception, null if success
     final RPC.RpcKind rpcKind;      // Rpc EngineKind
@@ -310,7 +310,9 @@ public class Client {
 
   /** Thread that reads responses and notifies callers.  Each connection owns a
    * socket connected to a remote address.  Calls are multiplexed through this
-   * socket: responses may be delivered out of order. */
+   * socket: responses may be delivered out of order.
+   * Client和Server之间维护一个通信连接
+   */
   private class Connection extends Thread {
     private InetSocketAddress server;             // server ip:port
     private final ConnectionId remoteId;                // connection id
@@ -333,7 +335,7 @@ public class Client {
     private ByteArrayOutputStream pingRequest; // ping message
     
     // currently active calls
-    private Hashtable<Integer, Call> calls = new Hashtable<Integer, Call>();
+    private Hashtable<Integer, Call> calls = new Hashtable<Integer, Call>(); // 保存着RPC请求
     private AtomicLong lastActivity = new AtomicLong();// last I/O activity time
     private AtomicBoolean shouldCloseConnection = new AtomicBoolean();  // indicate if the connection is closed
     private IOException closeException; // close reason
@@ -389,7 +391,7 @@ public class Client {
       lastActivity.set(Time.now());
     }
 
-    /**
+    /** 把请求添加到哈希表calls中
      * Add a call to this connection's call queue and notify
      * a listener; synchronized.
      * Returns false if called during shutdown.
@@ -880,6 +882,14 @@ public class Client {
       }
     }
 
+    /**
+     * Connect是一个线程类，调用receiveRpcResponse()，直到接收到RPC结果
+     * 当调用该方法时，Client需要进行4个步骤：
+     * 1. 创建一个Connection对象，并把远程方法调用信息封装成Call对象，放到哈希表calls中
+     * 2. 调用 sendRpcRequest()方法把当前Call对象发送给Server端
+     * 3. Server端处理完QQ后，把结果通过网络返回给client，Client通过reciveRpcResponse()获取结果
+     * 4. Client检查结果处理状态，并把Call对象从哈希表中删除
+     */
     @Override
     public void run() {
       if (LOG.isDebugEnabled())
@@ -905,7 +915,8 @@ public class Client {
             + connections.size());
     }
 
-    /** Initiates a rpc call by sending the rpc request to the remote server.
+    /** 发送RPC请求
+     * Initiates a rpc call by sending the rpc request to the remote server.
      * Note: this is not called from the Connection thread, but by other
      * threads.
      * @param call - the rpc request
@@ -982,7 +993,8 @@ public class Client {
       }
     }
 
-    /* Receive a response.
+    /** 接收RPC响应
+     * Receive a response.
      * Because only one receiver, so no synchronization on in.
      */
     private void receiveRpcResponse() {
