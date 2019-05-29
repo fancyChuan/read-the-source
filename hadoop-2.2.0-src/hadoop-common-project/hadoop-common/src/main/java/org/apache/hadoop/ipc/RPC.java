@@ -185,6 +185,7 @@ public class RPC {
   private static final String ENGINE_PROP = "rpc.engine";
 
   /**
+   * 允许用户指定序列化框架，而不仅仅只是Writable，还可以是Protocol Buffers等
    * Set a protocol to use a non-default RpcEngine.
    * @param conf configuration to use
    * @param protocol the protocol interface

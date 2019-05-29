@@ -40,5 +40,14 @@ Hadoop RPC对外提供了两种接口：getProxy/waitForProxy用于构造一个�
 
 参见 [自定义RPC实现](https://github.com/fancyChuan/read-the-source/tree/master/hadoop/rpc)
 
+#### 3.3.5 Hadoop RPC类详解
+主要由三个大类组成：RPC、Client、Server，分别对应对外编程接口、客户端实现和服务器实现
+- ipc.RPC类
+    - 构建RPC客户端的方法：getProxy() waitForProxy()
+    - 客户端销毁方法：stopProxy()
+    - 服务端构建方法： PRC.builder().build()， 之后server.start()启动
+    - 与Hadoop1.x中的RPC近支持Writable序列化方式不同，Hadoop2.x允许使用其他框架，通过RPC.setProtocolEngine()设定
+- 
+
 ### 3.5 状态机
 YARN中每种状态由四元组标识：preState/postState/event/hook(回调函数)
