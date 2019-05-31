@@ -38,7 +38,7 @@ Hadoop RPC对外提供了两种接口：getProxy/waitForProxy用于构造一个�
 - 3.构造并启动RPC Server：MyRPCServer
 - 4.构造RPC client并发送RPC请求：MyRPCClient
 
-参见 [自定义RPC实现](https://github.com/fancyChuan/read-the-source/tree/master/hadoop/rpc)
+参见 [自定义RPC实现](https://github.com/fancyChuan/read-the-source/tree/master/hadoop/src/rpc)
 
 #### 3.3.5 Hadoop RPC类详解
 主要由三个大类组成：RPC、Client、Server，分别对应对外编程接口、客户端实现和服务器实现
@@ -48,12 +48,28 @@ Hadoop RPC对外提供了两种接口：getProxy/waitForProxy用于构造一个�
     - 服务端构建方法： PRC.builder().build()， 之后server.start()启动
     - 与Hadoop1.x中的RPC近支持Writable序列化方式不同，Hadoop2.x允许使用其他框架，通过RPC.setProtocolEngine()设定
 - ipc.Client类
-    - 主要功能：发送远程过程调用信息并接收执行结果，有两个中啊哟的内部类：Call和Connection
+    - 主要功能：发送远程过程调用信息并接收执行结果，有两个重要的内部类：Call和Connection
     - Call类：封装一个RPC请求
     - Connection类：Client和Server之间维护一个通信连接
     - 处理流程如下图：
     
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RPC-Client处理流程.png?raw=true)
+- ipc.Server类
+    - Master/Slave结构，Master是系统的单点(如NameNode和JobTracker)，是制约系统性能和可拓展性的最关键因素之一
+    - ipc.Server将高并发和可拓展性作为设计目标，采用了很多技术：线程池、事件驱动、Reactor设计模式等
+    - Reactor
+        - 并发编程中一种基于事件驱动的设计模式，有两个特点：
+            - 通过派发、分离I/O操作事件提高系统并发性能
+            - 提供粗粒度的并发控制，使用单线程实现，避免了复杂的同步处理
+        - 几个角色
+            - Reactor：I/O事件的派发者
+            - Acceptor：接受来自Client的连接，建立与Client对应的Handler，并向Reactor注册此Handler
+            - Handler：与Client通信的实体，并按一定的过程实现业务的处理
+            - Reader/Sender：为加快处理速度，Reactor模式往往构造一个存放数据处理线程的线程池，一般分离Handler中的读和写两个过程，注册成读事件、写事件，然后交由Reader、Sender处理
 
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/Reactor模式工作原理.png?raw=true)          
+
+
+  
 ### 3.5 状态机
 YARN中每种状态由四元组标识：preState/postState/event/hook(回调函数)
