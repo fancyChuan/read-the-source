@@ -851,6 +851,11 @@ public abstract class Server {
   }
 
   // Sends responses of RPC back to clients.
+
+  /**
+   * Server端仅存在一个Responder线程，内部包含一个Selector独享，用于监听SelectionKey.OP_WRITE事件
+   * Handler没能将结果一次性返回时，会向该Selector对象注册SelectionKey.OP_WRITE事件，进而Responder用异步的方式继续发送未发送完成的结果
+   */
   private class Responder extends Thread {
     private final Selector writeSelector;
     private int pending;         // connections waiting to register
