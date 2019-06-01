@@ -75,6 +75,14 @@ Hadoop RPC对外提供了两种接口：getProxy/waitForProxy用于构造一个�
 
     
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RPC-Server处理流程.png?raw=true)
-  
+
+#### 3.3.6 Hadoop RPC参数调优
+可配置参数：
+- Reader线程数目： ipc.server.read.threadpool.size，默认为1，也就是默认Server只包含一个Reader线程
+- 每个Handler线程对应的最大Call数目：ipc.server.handler.queue.size，默认是100，每个Handler线程对应的Call队列长度为100。如果有10个Handler，那么整个Call队列最大长度为100*10
+- Handler线程数目：yarn.resourcemanager.resource-tracker.client.thread-count和dfs.namenode.service.handler.count指定，默认是50和10
+- 客户端最大重试次数：ipc.client.connect.max.retries，默认为10（每两次之间相隔1秒）
+
+
 ### 3.5 状态机
 YARN中每种状态由四元组标识：preState/postState/event/hook(回调函数)
