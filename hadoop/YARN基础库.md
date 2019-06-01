@@ -67,9 +67,11 @@ Hadoop RPC对外提供了两种接口：getProxy/waitForProxy用于构造一个�
             - Handler：与Client通信的实体，并按一定的过程实现业务的处理
             - Reader/Sender：为加快处理速度，Reactor模式往往构造一个存放数据处理线程的线程池，一般分离Handler中的读和写两个过程，注册成读事件、写事件，然后交由Reader、Sender处理
 
-![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/Reactor模式工作原理.png?raw=true)          
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/Reactor模式工作原理.png?raw=true)                    
 
-
+    - 处理细节，主要划分为三个阶段：接受请求、处理请求、返回结果
+    
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RPC-Server处理流程.png?raw=true)
   
 ### 3.5 状态机
 YARN中每种状态由四元组标识：preState/postState/event/hook(回调函数)

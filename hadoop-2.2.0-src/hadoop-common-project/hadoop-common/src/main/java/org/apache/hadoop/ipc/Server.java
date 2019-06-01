@@ -368,7 +368,7 @@ public abstract class Server {
   private final boolean tcpNoDelay; // if T then disable Nagle's Algorithm
 
   volatile private boolean running = true;         // true while server runs
-  private BlockingQueue<Call> callQueue; // queued calls
+  private BlockingQueue<Call> callQueue; // queued calls // 接收到RPC请求后封装成Call，然后放入队列
 
   private List<Connection> connectionList = 
     Collections.synchronizedList(new LinkedList<Connection>());
@@ -509,8 +509,14 @@ public abstract class Server {
 
   /** Listens on the socket. Creates jobs for the handler threads*/
   private class Listener extends Thread {
+    /**
+     * 这个类负责接收Client的请求，并把请求封装成Call，放到共享队列callQueue中
+     * 整个Server只有一个Listner线程，统一负责监听来自客户端的连接请求。
+     * 一旦有新的请求，就会采用简单的轮询分配机制从线程池中选择一个Reader线程进行处理
+     */
     
     private ServerSocketChannel acceptChannel = null; //the accept channel
+    // selector对象，用于监听SelectionKey.OP_ACCEPT SelectionKey.OP_READ事件
     private Selector selector = null; //the selector that we use for the server
     private Reader[] readers = null;
     private int currentReader = 0;
@@ -572,7 +578,7 @@ public abstract class Server {
           }
         }
       }
-
+      // Reader下的主循环，监听它所负责的客户端连接中是否有新的RPC请求到达，并将新的RPC请求封装成Call对象，并放到callQueue中
       private synchronized void doRunLoop() {
         while (running) {
           SelectionKey key = null;
@@ -692,13 +698,14 @@ public abstract class Server {
         try {
           getSelector().select();
           Iterator<SelectionKey> iter = getSelector().selectedKeys().iterator();
+          // 主循环，监听是否有新的连接请求到达。使用的底层技术是NIO
           while (iter.hasNext()) {
             key = iter.next();
             iter.remove();
             try {
               if (key.isValid()) {
                 if (key.isAcceptable())
-                  doAccept(key);
+                  doAccept(key); // 接受请求
               }
             } catch (IOException e) {
             }
@@ -760,7 +767,7 @@ public abstract class Server {
         channel.configureBlocking(false);
         channel.socket().setTcpNoDelay(tcpNoDelay);
         
-        Reader reader = getReader();
+        Reader reader = getReader(); // 获取Reader线程
         try {
           reader.startAdd();
           SelectionKey readKey = reader.registerChannel(channel);
@@ -831,11 +838,12 @@ public abstract class Server {
       for (Reader r : readers) {
         r.shutdown();
       }
-    }
+    } // 以上为Listner的代码
     
     synchronized Selector getSelector() { return selector; }
     // The method that will return the next reader to work with
     // Simplistic implementation of round robin for now
+    // 这里只是通过简单轮询的方式从线程池中获取Reader，通过取余找到下一个Reader
     Reader getReader() {
       currentReader = (currentReader + 1) % readers.length;
       return readers[currentReader];
