@@ -2014,7 +2014,13 @@ public abstract class Server {
     }
   }
 
-  /** Handles queued calls . */
+  /**
+   *  Handles queued calls . 处理队列的RPC请求
+   *  Server端可同时存在多个Handler线程，并行从共享队列中读取Call对象
+   *  结果返回有两种情况：
+   *    1. 直接把结果返回给对应的客户端
+   *    2. 难以将结果一次性发送给客户端时，Handler尝试将后续发送任务交给Response线程
+   */
   private class Handler extends Thread {
     public Handler(int instanceNumber) {
       this.setDaemon(true);
