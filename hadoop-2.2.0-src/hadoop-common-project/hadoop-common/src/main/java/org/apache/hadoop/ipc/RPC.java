@@ -186,6 +186,8 @@ public class RPC {
 
   /**
    * 允许用户指定序列化框架，而不仅仅只是Writable，还可以是Protocol Buffers等
+   *
+   * 这是因为Hadoop YARN把RPC中的序列化部分剥离，把RPC变成一个工厂，具体的RPC实现授权给RpcEngine实现类
    * Set a protocol to use a non-default RpcEngine.
    * @param conf configuration to use
    * @param protocol the protocol interface

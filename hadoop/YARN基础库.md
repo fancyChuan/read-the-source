@@ -83,6 +83,21 @@ Hadoop RPC对外提供了两种接口：getProxy/waitForProxy用于构造一个�
 - Handler线程数目：yarn.resourcemanager.resource-tracker.client.thread-count和dfs.namenode.service.handler.count指定，默认是50和10
 - 客户端最大重试次数：ipc.client.connect.max.retries，默认为10（每两次之间相隔1秒）
 
+#### 3.37 YARN RPC实现
+- Hadoop RPC的不足：
+    - 仅支持java，如果用户希望直接用C/C++读写HDFS就需要有C/C++的客户端
+    - 当前Hadoop版本较多，不同版本之间不能通信。比如0.20.2的JobTracker与2.21.0的TaskTracker不能通信
+- 改进：Hadoop YARN将RPC中的序列化部分剥离开，以遍集合现有的开源RPC框架
+    - RPC类变成一个工厂，具体的RPC实现授权给RpcEngine实现类（比如WritableRpcEngine、AvroRpcEngine、ProtobufRpcEngine）
+    - 用户也可以通过配置参数：rpc.engine.{protocol}以指定协议{protocol}
+    - 当前Hadoop RPC只是采用了这些开源框架的序列化机制，底层的函数调用仍采用Hadoop自带的
+    - 对外暴露YarnRPC
+- YARN采用Protocol Buffers作为默认的 序列化机智，带来的好处有：
+    - 基础了Protocol Buffers的优势：
+        - 允许在保持向后兼容性的前提下修改协议
+        - 支持多语言，方便编写飞java客户端
+        - 比Hadoop自带的Writable在性能方面有很大提升
+    - 支持升级回滚，比如可以对主备NameNode进行在线升级而不需要考虑版本和协议兼容性
 
 ### 3.5 状态机
 YARN中每种状态由四元组标识：preState/postState/event/hook(回调函数)

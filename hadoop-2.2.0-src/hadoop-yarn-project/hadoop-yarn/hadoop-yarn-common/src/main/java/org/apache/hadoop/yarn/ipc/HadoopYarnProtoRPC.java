@@ -35,6 +35,10 @@ import org.apache.hadoop.yarn.factory.providers.RpcFactoryProvider;
  * This does not give cross-language wire compatibility, since the Hadoop 
  * RPC wire format is non-standard, but it does permit use of Protocol Buffers
  *  protocol versioning features for inter-Java RPCs.
+ *
+ * 通过RPC工厂生成器RpcFactoryProvider得到：
+ *  1. 客户端工厂：由yarn.ipc.client.factory.class指定，默认值为 org.apache.hadoop.yarn.factories.impl.pb.RpcClientFactoryPBImpl
+ *  2. 服务器工厂：有yarn.ipc.server.factory.class指定，默认值为 org.apache.hadoop.yarn.factories.impl.pb.RpcServerFactoryPBImpl
  */
 @InterfaceAudience.LimitedPrivate({ "MapReduce", "YARN" })
 public class HadoopYarnProtoRPC extends YarnRPC {

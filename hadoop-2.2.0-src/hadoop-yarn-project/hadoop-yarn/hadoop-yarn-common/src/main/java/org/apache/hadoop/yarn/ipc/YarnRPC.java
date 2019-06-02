@@ -32,6 +32,11 @@ import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 
 /**
  * Abstraction to get the RPC implementation for Yarn.
+ *
+ * YARNA对外提供的类，基于这个类，用户可以构建一个基于Hadoop RPC且采用Protocol Buffers序列化框架的通信协议
+ * 1. 这是一个抽象类，实际实现由参数 yarn.ipc.rpc.class指定，默认为：org.apache.hadoop.yarn.ipc.HadoopYarnProtoRPC
+ * 2. HadoopYarnProtoRPC通过RPC工厂生成器RpcFactoryProvider分别生成客户端工厂、服务端工厂
+ *
  */
 @InterfaceAudience.LimitedPrivate({ "MapReduce", "YARN" })
 public abstract class YarnRPC {
