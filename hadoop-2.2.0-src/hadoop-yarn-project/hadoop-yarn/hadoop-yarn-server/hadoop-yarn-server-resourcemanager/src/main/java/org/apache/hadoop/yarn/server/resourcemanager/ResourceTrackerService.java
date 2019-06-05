@@ -56,6 +56,9 @@ import org.apache.hadoop.yarn.server.resourcemanager.security.authorize.RMPolicy
 import org.apache.hadoop.yarn.server.utils.YarnServerBuilderUtils;
 import org.apache.hadoop.yarn.util.RackResolver;
 
+/**
+ * 实现ResourceTracker通信接口，并启动RPC server
+ */
 public class ResourceTrackerService extends AbstractService implements
     ResourceTracker {
 
@@ -134,7 +137,7 @@ public class ResourceTrackerService extends AbstractService implements
     // ResourceTrackerServer authenticates NodeManager via Kerberos if
     // security is enabled, so no secretManager.
     Configuration conf = getConfig();
-    YarnRPC rpc = YarnRPC.create(conf);
+    YarnRPC rpc = YarnRPC.create(conf); // 使用YarnRPC类
     this.server =
       rpc.getServer(ResourceTracker.class, this, resourceTrackerAddress,
           conf, null,
@@ -148,7 +151,7 @@ public class ResourceTrackerService extends AbstractService implements
       refreshServiceAcls(conf, new RMPolicyProvider());
     }
 
-    this.server.start();
+    this.server.start();  // 启动RPC server
     conf.updateConnectAddr(YarnConfiguration.RM_RESOURCE_TRACKER_ADDRESS,
                            server.getListenerAddress());
   }
@@ -161,6 +164,12 @@ public class ResourceTrackerService extends AbstractService implements
     super.serviceStop();
   }
 
+  /**
+   * 注册NodeManager
+   *  1. 检查节点是否合法可用
+   *  2. 检查节点是否拥有所要求的的最低资源分配
+   *  3.
+   */
   @SuppressWarnings("unchecked")
   @Override
   public RegisterNodeManagerResponse registerNodeManager(

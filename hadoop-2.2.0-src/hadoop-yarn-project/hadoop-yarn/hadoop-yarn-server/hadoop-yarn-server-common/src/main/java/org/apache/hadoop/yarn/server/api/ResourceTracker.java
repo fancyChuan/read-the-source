@@ -25,6 +25,9 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.NodeHeartbeatResponse;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RegisterNodeManagerRequest;
 import org.apache.hadoop.yarn.server.api.protocolrecords.RegisterNodeManagerResponse;
 
+/**
+ * ResourceManager与NodeManager通信协议，由Protocol buffers生成
+ */
 public interface ResourceTracker {
   
   public RegisterNodeManagerResponse registerNodeManager(
