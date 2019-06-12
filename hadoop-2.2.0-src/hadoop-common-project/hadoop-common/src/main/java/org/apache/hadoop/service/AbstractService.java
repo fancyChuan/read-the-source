@@ -35,6 +35,8 @@ import com.google.common.annotations.VisibleForTesting;
 
 /**
  * This is the base implementation class for services.
+ *
+ * 最基本的Service实现，对于非组合服务，直接继承该类即可
  */
 @Public
 @Evolving

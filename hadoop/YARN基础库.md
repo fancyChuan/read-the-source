@@ -99,5 +99,19 @@ Hadoop RPC对外提供了两种接口：getProxy/waitForProxy用于构造一个�
         - 比Hadoop自带的Writable在性能方面有很大提升
     - 支持升级回滚，比如可以对主备NameNode进行在线升级而不需要考虑版本和协议兼容性
 
+### 3.4 服务库与事件库
+#### 3.4.1 服务库
+YARN采用基于服务的对象管理模式管理生命周期较长的对象，有几个特点：
+- 将被服务化的对象分为4个状态：NOTINITED（被创建）、INITED（已初始化）、STARTED（已启动）、STOPPED（已停止）
+- 任何服务状态变化都可以触发另外一些动作
+- 可通过组合的方式对任意服务进行组合，以便统一管理
+
+YARN所有关于服务的类图在 org.apache.hadoop.service 中
+- 所有的服务对象最终都实现了Service接口，它定义了最基本的服务阶段：初始化、启动、停止等
+- AbstractService类：最基本的Service实现，对于非组合服务，直接继承该类即可
+- CompositeService类：需要组合服务的对象，继承该类
+    - 比如ResourceManager是一个组合服务，组合了：ClientRMService、ApplicationMasterLauncher、ApplicationMasterService
+    - NodeManager也是组合服务，和RM一样，内部包含了多个单一服务和组合服务，以实现对内部多种服务的统一管理
+
 ### 3.5 状态机
 YARN中每种状态由四元组标识：preState/postState/event/hook(回调函数)

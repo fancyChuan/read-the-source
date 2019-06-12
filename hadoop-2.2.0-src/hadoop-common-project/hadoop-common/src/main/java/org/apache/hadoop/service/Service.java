@@ -29,6 +29,8 @@ import java.util.Map;
 
 /**
  * Service LifeCycle.
+ *
+ * 所有的服务对象最终都实现了该接口，定义了最基本的服务阶段：初始化、启动、停止等
  */
 @Public
 @Evolving

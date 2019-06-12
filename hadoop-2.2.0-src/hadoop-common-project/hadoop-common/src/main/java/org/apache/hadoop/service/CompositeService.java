@@ -30,6 +30,7 @@ import org.apache.hadoop.conf.Configuration;
 
 /**
  * Composition of services.
+ * 组合服务，需要继承该类
  */
 @Public
 @Evolving
