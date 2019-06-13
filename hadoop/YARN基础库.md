@@ -113,5 +113,18 @@ YARN所有关于服务的类图在 org.apache.hadoop.service 中
     - 比如ResourceManager是一个组合服务，组合了：ClientRMService、ApplicationMasterLauncher、ApplicationMasterService
     - NodeManager也是组合服务，和RM一样，内部包含了多个单一服务和组合服务，以实现对内部多种服务的统一管理
 
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/YARN中服务模型的类图.png?raw=true)
+
+#### 3.4.2 事件库
+YARN采用基于事件驱动的并发模型，能够大大增强并发性，提供系统整体性能
+- YARN把各种处理逻辑抽象成事件和对应事件调度器，并将事件的处理过程分隔成多个步骤，用有限状态机表示，处理过程大致如下：
+    - 处理请求作为事件进入系统，由中央异步调度器（AsyncDispatcher）传递给相应的事件调度器（EventHandler）
+    - 事件调度器可能转发给另一个事件调度器，也可能交给带有有限状态机的事件处理器
+    - 处理结果以事件的形式输出给中央异步调度器，重复前两个步骤知道处理完成（达到终止条件）
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/YARN的事件处理模型.png?raw=true)
+
+- YARN中，所有核心服务实际上都是一个中央异步调度器，包括RM、NM、MRAppMaster
+    
 ### 3.5 状态机
 YARN中每种状态由四元组标识：preState/postState/event/hook(回调函数)
