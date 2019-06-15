@@ -156,6 +156,9 @@ import com.google.common.annotations.VisibleForTesting;
  * register to the Dispatcher.
  * 
  * The information is shared across different components using AppContext.
+ *
+ * MRAppMaster内部包含一个中央异步调度器AsyncDispatcher，并注册了
+ *  TaskAttemptEvent/TaskAttempImpl、TaskEvent/TaskImpl、JobEvent/JobImpl等一系列事件/事件处理器，由中央异步调度器统一管理调度
  */
 
 @SuppressWarnings("rawtypes")

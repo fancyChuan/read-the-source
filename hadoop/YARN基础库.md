@@ -125,6 +125,11 @@ YARN采用基于事件驱动的并发模型，能够大大增强并发性，提�
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/YARN的事件处理模型.png?raw=true)
 
 - YARN中，所有核心服务实际上都是一个中央异步调度器，包括RM、NM、MRAppMaster
+- 使用YARN事件库时，需要先定义一系列事件Event与事件处理器EventHandler，并注册到中央异步调度器以实现事件统一管理和调度
+> 参见 [MRAppMaster.java](https://github.com/fancyChuan/read-the-source/blob/master/hadoop-2.2.0-src/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-app/src/main/java/org/apache/hadoop/mapreduce/v2/app/MRAppMaster.java)
+
+服务化和事件驱动软件设计思想的引入，是的YARN具有低耦合、高内聚的特点，各个模块只要完成各自功能，模块之间采用事件联系起来，系统设计简单且维护方便
+
     
 ### 3.5 状态机
 YARN中每种状态由四元组标识：preState/postState/event/hook(回调函数)
