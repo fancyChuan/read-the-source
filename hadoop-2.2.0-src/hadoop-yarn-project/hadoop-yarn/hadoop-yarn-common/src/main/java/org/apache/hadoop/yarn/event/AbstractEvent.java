@@ -23,6 +23,7 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
 /**
  * Parent class of all the events. All events extend this class.
+ * 所有事件都需要继承该类
  */
 @Public
 @Evolving

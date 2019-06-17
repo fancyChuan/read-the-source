@@ -8,6 +8,9 @@ import org.apache.hadoop.yarn.event.Dispatcher;
 import org.apache.hadoop.yarn.event.Event;
 import org.apache.hadoop.yarn.event.EventHandler;
 
+/**
+ * 简化版的MRAppMaster
+ */
 @SuppressWarnings("unchecked")
 public class SimpleMRAppMaster extends CompositeService {
     private Dispatcher dispatcher;      // 中央异步调度器
@@ -32,12 +35,12 @@ public class SimpleMRAppMaster extends CompositeService {
         dispatcher.register(TaskEventType.class, new TaskEventDispatcher());
         // 添加注册该调度器，后面为其他事件服务
         addService((Service) dispatcher);
-        super.serviceInit(conf);
+        super.serviceInit(conf); // 因为是继承了抽象父类AbstractService，所以这里也需要调用父类的初始服务方法
     }
 
     @Override
     protected void serviceStart() throws Exception {
-        super.serviceStart();
+        super.serviceStart(); // AbstractService的这个方法是protected的，后面使用的时候无法执行启动服务，所以这个地方需要封装一下
     }
 
     public Dispatcher getDispatcher() {
@@ -48,12 +51,13 @@ public class SimpleMRAppMaster extends CompositeService {
     /**
      * Job事件调度器
      */
-    private class JobEventDispatcher implements EventHandler {
+    private class JobEventDispatcher implements EventHandler<JobEvent> {
         @Override
-        public void handle(Event event) {
+        public void handle(JobEvent event) {
             if (event.getType() == JobEventType.JOB_KILL) {
                 System.out.println("Receive JOB_KILL enent, killing all the tasks");
                 for (int i = 0; i < taskNumber; i++) {
+                    // TODO： 这个地方也是，为什么能准确找到对应的EventHandler??
                     dispatcher.getEventHandler().handle(new TaskEvent(taskIDs[i], TaskEventType.T_KILL));
                 }
             } else if (event.getType() == JobEventType.JOB_INIT) {

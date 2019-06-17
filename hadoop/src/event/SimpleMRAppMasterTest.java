@@ -12,10 +12,10 @@ public class SimpleMRAppMasterTest {
 
         YarnConfiguration conf = new YarnConfiguration(new Configuration());
         appMaster.serviceInit(conf);    // 服务初始化
-        appMaster.serviceStart();       // 启动服务
+        appMaster.serviceStart();       // 启动服务，注意需要在SimpleMRAppMaster中封装一下
 
         // 接收事件并调度想要的处理器处理事件
-        appMaster.getDispatcher().getEventHandler().handle(new JobEvent(jobID, JobEventType.JOB_KILL));
+        appMaster.getDispatcher().getEventHandler().handle(new JobEvent(jobID, JobEventType.JOB_KILL)); //TODO：为什么这个地方能够准确的找到对应的事件处理器？？
         appMaster.getDispatcher().getEventHandler().handle(new JobEvent(jobID, JobEventType.JOB_INIT));
     }
 
