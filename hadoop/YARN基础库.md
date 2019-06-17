@@ -130,6 +130,19 @@ YARN采用基于事件驱动的并发模型，能够大大增强并发性，提�
 
 服务化和事件驱动软件设计思想的引入，是的YARN具有低耦合、高内聚的特点，各个模块只要完成各自功能，模块之间采用事件联系起来，系统设计简单且维护方便
 
+#### 3.4.4 事件驱动带来的变化
+- MRv1对象间的作用关系是基于函数调用的
+    - 函数调用的过程是串行的
+    - 后来的MRv1通过启动独立线程下载文件解决了阻塞问题，但不是大系统的彻底解决方法
     
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/基于函数调用的工作流程.png?raw=true)
+
+- MRv2引入事件驱动编程模型(更高效、异步、并发)
+    - 所有对象被抽象成事件处理器，他们之间通过事件相互关联
+    - 每种事件处理器处理一种类型的事件，同时根据需要触发另一个种事件
+    - 比如需要下载文件时，只需要向中央异步处理器发送一个事件即可，无需等待，可以先完成其他事情
+    
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/基于事件驱动的工作流程.png?raw=true)
+
 ### 3.5 状态机
 YARN中每种状态由四元组标识：preState/postState/event/hook(回调函数)
