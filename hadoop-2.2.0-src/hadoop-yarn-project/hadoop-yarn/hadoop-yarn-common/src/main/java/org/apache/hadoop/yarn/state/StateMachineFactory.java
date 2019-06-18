@@ -40,6 +40,9 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
  * @param <EVENTTYPE> The external eventType to be handled.
  * @param <EVENT> The event object.
  *
+ * YARN对外提供的状态机工厂
+ * 1. 调用addTransition添加各种状态转移
+ * 2. 调用这个方法完成状态机的构建
  */
 @Public
 @Evolving
@@ -273,6 +276,8 @@ final public class StateMachineFactory
    *
    * Calling this is optional.  It doesn't change the semantics of the factory,
    *   if you call it then when you use the factory there is no synchronization.
+   *
+   * 2. 调用这个方法完成状态机的构建
    */
   public StateMachineFactory
              <OPERAND, STATE, EVENTTYPE, EVENT>

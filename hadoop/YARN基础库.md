@@ -156,3 +156,8 @@ YARN中有三种转化方式：
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/YARN状态转化方式.png?raw=true)
 
+#### 3.5.2 状态机类
+yarn实现了一个非常简单的状态机库：org.apache.hadoop.yarn.state
+- 对外提供一个状态机工厂 StatemachineFactory，提供多种addTransition方法用于添加各种状态转移
+- 添加完毕后，调用installTopology完成一个状态机的构建
+
