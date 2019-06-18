@@ -1,4 +1,4 @@
-package rpc;
+package yarn.rpc;
 
 import org.apache.hadoop.ipc.ProtocolSignature;
 
@@ -21,12 +21,12 @@ public class ClientProtocolImpl implements ClientProtocol {
     // 获取自定义的协议版本号
     @Override
     public long getProtocolVersion(String s, long l) throws IOException {
-        return ClientProtocol.versionID;
+        return versionID;
     }
 
     // 获取协议签名
     @Override
     public ProtocolSignature getProtocolSignature(String s, long l, int i) throws IOException {
-        return new ProtocolSignature(ClientProtocol.versionID, null);
+        return new ProtocolSignature(versionID, null);
     }
 }

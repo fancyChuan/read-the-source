@@ -38,7 +38,7 @@ Hadoop RPC对外提供了两种接口：getProxy/waitForProxy用于构造一个�
 - 3.构造并启动RPC Server：MyRPCServer
 - 4.构造RPC client并发送RPC请求：MyRPCClient
 
-参见 [自定义RPC实现](https://github.com/fancyChuan/read-the-source/tree/master/hadoop/src/rpc)
+参见 [自定义RPC实现](https://github.com/fancyChuan/read-the-source/tree/master/hadoop/src/yarn/rpc)
 
 #### 3.3.5 Hadoop RPC类详解
 主要由三个大类组成：RPC、Client、Server，分别对应对外编程接口、客户端实现和服务器实现
@@ -129,6 +129,8 @@ YARN采用基于事件驱动的并发模型，能够大大增强并发性，提�
 > 参见 [MRAppMaster.java](https://github.com/fancyChuan/read-the-source/blob/master/hadoop-2.2.0-src/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-app/src/main/java/org/apache/hadoop/mapreduce/v2/app/MRAppMaster.java)
 
 服务化和事件驱动软件设计思想的引入，是的YARN具有低耦合、高内聚的特点，各个模块只要完成各自功能，模块之间采用事件联系起来，系统设计简单且维护方便
+#### 3.3.3 服务库和事件库的使用方法
+参见 [服务库和事件库使用方法](https://github.com/fancyChuan/read-the-source/tree/master/hadoop/src/yarn/event)
 
 #### 3.4.4 事件驱动带来的变化
 - MRv1对象间的作用关系是基于函数调用的

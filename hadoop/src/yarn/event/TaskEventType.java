@@ -1,4 +1,4 @@
-package event;
+package yarn.event;
 
 /**
  * Task事件类型

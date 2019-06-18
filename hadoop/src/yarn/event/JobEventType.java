@@ -1,4 +1,4 @@
-package event;
+package yarn.event;
 
 public enum JobEventType {
     JOB_KILL,

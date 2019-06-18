@@ -1,4 +1,4 @@
-package rpc;
+package yarn.rpc;
 
 import java.io.IOException;
 
