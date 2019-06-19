@@ -163,3 +163,4 @@ yarn实现了一个非常简单的状态机库：org.apache.hadoop.yarn.state
 - 对外提供一个状态机工厂 StatemachineFactory，提供多种addTransition方法用于添加各种状态转移
 - 添加完毕后，调用installTopology完成一个状态机的构建
 
+参见：[状态机类的示例](https://github.com/fancyChuan/read-the-source/tree/master/hadoop/src/yarn/state)
