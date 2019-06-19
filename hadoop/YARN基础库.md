@@ -172,4 +172,26 @@ YARN实现了多个状态机对象，包括：
 
 #### 3.5.4 状态机可视化
 yarn提供了一个状态机可视化工具，步骤为：
-- mvn compile -Pvisualize
+- mvn compile -Pvisualize 会生成.gv文件
+- 把生成的.gv文件使用可视化包graphviz生成状态机图： dot -Tpng NodeManager.gv > NodeManager.png
+
+### 3.6 源码阅读指导
+- Hadoop RPC
+    - 源码位置：
+        - HadoopRPC内部实现：hadoop-common-project\hadoop-common\src\main\java下的org.apache.hadoop.ipc
+        - YARN对RPC的Protocol Buffers封装：hadoop-yarn-project\hadoop-yarn\hadoop-yarn-common\src\main\java下的org.apache.hadoop.yarn.ipc
+    - 建议
+        - 先尝试使用HadoopRPC实现一个C/S服务器
+        - 阅读客户端代码和服务器代码
+    - 检验标准：能描述清楚下面两个流程
+        - 客户端发送一个请求到接收到请求应答的整个过程是怎么样的，依次经过哪些函数的调用和通信过程
+        - 多个客户端并发发送请求到服务器后，服务器是如何处理的
+- 服务库、事件库和状态机
+    - 源码位置
+        - 服务库位置：hadoop-common-project\hadoop-common\src\main\java下的 org.apache.hadoop.service
+        - 事件库位置：hadoop-yarn-project\hadoop-yarn\hadoop-yarn-common\src\main\java下的 org.apache.hadoop.yarn.event
+        - 状态机库位置：hadoop-yarn-project\hadoop-yarn\hadoop-yarn-common\src\main\java下的 org.apache.hadoop.yarn.state
+    - 建议
+        - 首先弄清各个包的对外接口
+        - 尝试编写几个实例使用这几个库
+        - 跟着YARN源码学习这几个库
