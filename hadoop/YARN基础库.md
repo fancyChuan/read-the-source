@@ -164,3 +164,12 @@ yarn实现了一个非常简单的状态机库：org.apache.hadoop.yarn.state
 - 添加完毕后，调用installTopology完成一个状态机的构建
 
 参见：[状态机类的示例](https://github.com/fancyChuan/read-the-source/tree/master/hadoop/src/yarn/state)
+
+YARN实现了多个状态机对象，包括：
+- ResourceManager中的RMAppImpl、RMAppAttempImpl、RMContainerImpl和RMNodeImpl
+- NodeManager中的ApplicationImpl、ContainerImpl和LocalizedResource
+- MRAppMaster中的JobImpl、TaskImpl和TaskAttemptImpl
+
+#### 3.5.4 状态机可视化
+yarn提供了一个状态机可视化工具，步骤为：
+- mvn compile -Pvisualize
