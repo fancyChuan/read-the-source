@@ -8,9 +8,9 @@ import java.net.InetSocketAddress;
 
 public class MyRPCClient {
     public static void main(String[] args) throws IOException {
-        ClientProtocol proxy = (ClientProtocol) RPC.getProxy(
-                ClientProtocol.class,
-                ClientProtocol.versionID,
+        MyProtocol proxy = (MyProtocol) RPC.getProxy(
+                MyProtocol.class,
+                MyProtocol.versionID,
                 new InetSocketAddress("localhost",6666),
                 new Configuration());
 

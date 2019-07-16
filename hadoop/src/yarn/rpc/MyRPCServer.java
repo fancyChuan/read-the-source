@@ -7,8 +7,8 @@ import java.io.IOException;
 
 public class MyRPCServer {
     public static void main(String[] args) throws IOException {
-        RPC.Server server = new RPC.Builder(new Configuration()).setProtocol(ClientProtocol.class)
-                .setInstance(new ClientProtocolImpl())
+        RPC.Server server = new RPC.Builder(new Configuration()).setProtocol(MyProtocol.class)
+                .setInstance(new MyProtocolImpl())
                 .setBindAddress("localhost")
                 .setPort(6666)
                 .setNumHandlers(5)

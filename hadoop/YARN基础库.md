@@ -33,8 +33,8 @@ RPC通常采用客户机/服务器模型，两个相互协议的通信模型实�
 Hadoop RPC对外提供了两种接口：getProxy/waitForProxy用于构造一个客户端代理对象， RPC.builder().build() 为某个协议实例构造一个服务器对象
 
 步骤大致为：
-- 1.定义RPC协议：ClientProtocol
-- 2.实现RPC协议：ClientProtocolImpl
+- 1.定义RPC协议：MyProtocol
+- 2.实现RPC协议：MyProtocolImpl
 - 3.构造并启动RPC Server：MyRPCServer
 - 4.构造RPC client并发送RPC请求：MyRPCClient
 

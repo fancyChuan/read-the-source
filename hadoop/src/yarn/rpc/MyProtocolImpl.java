@@ -7,7 +7,7 @@ import java.io.IOException;
 /**
  * 自定义RPC协议的实现
  */
-public class ClientProtocolImpl implements ClientProtocol {
+public class MyProtocolImpl implements MyProtocol {
     @Override
     public String echo(String value) throws IOException {
         return value;
