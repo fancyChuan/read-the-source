@@ -20,6 +20,9 @@ yarn是一个资源管理系统，负责集群资源的管理和调用，一般�
 - ContainerManagementProtocol:
     - 用于ApplicationMaster和NM之间
     - ApplicationMaster使用该协议要求NodeManager启动/撤销Container或者查询Container的运行状态
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/应用程序设计相关的通信协议.png?raw=true)
+
 ### 2. 客户端设计
 Application客户端的主要作用：
 - 提供一系列访问接口供用户与YARN交互
@@ -31,6 +34,8 @@ TODO：这里的客户端和概述中说的Client客户端是否是同一个？�
 - 步骤1：Client通过RPC函数ApplicationClientProtocol#getNewApplication从RM中获取唯一的applicationID
 - 步骤2：Client通过RPC函数ApplicationClientProtocol#submitApplication将ApplicationMaster提交到RM上
 
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/客户端提交应用程序.png?raw=true)
+
 除了实现提交Application的功能，客户端还需要提供以下几个接口方法的实现
 - getApplicationReport() 获取application运行报告，包括用户、队列、运行状态等信息
 - forceKillApplication() 强制杀死application
@@ -40,6 +45,14 @@ TODO：这里的客户端和概述中说的Client客户端是否是同一个？�
 - ...
 
 接口的源码位置： [org.apache.hadoop.yarn.api.ApplicationClientProtocol](https://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/api/ApplicationClientProtocol.java)
+
+注意：为了减轻RM的负载，一般在ApplicationMaster启动之后，客户端直接与AM通信，以查询应用的状态或控制执行流程
+> 比如一个MR任务：用户通过RPC协议ApplicationClientProtocol向RM提交应用，一旦MR的AM启动之后，通过了一个RPC协议MRClientProtocol直接与MRAppMaster通信，见下图：
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/客户端获取应用信息及控制应用程序.png?raw=true)
+
+#### 2.2 客户端编程库
+
 
 ### 5. 源码阅读引导
 - 通信协议：
