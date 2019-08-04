@@ -44,7 +44,7 @@ TODO：这里的客户端和概述中说的Client客户端是否是同一个？�
 - getClusterNodes() 查询当前系统中所有节点信息
 - ...
 
-接口的源码位置： [org.apache.hadoop.yarn.api.ApplicationClientProtocol](https://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/api/ApplicationClientProtocol.java)
+接口的源码位置： [org.apache.hadoop.yarn.api.ApplicationClientProtocol](https://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/api/ApplicationClientProtocol.java) 
 
 注意：为了减轻RM的负载，一般在ApplicationMaster启动之后，客户端直接与AM通信，以查询应用的状态或控制执行流程
 > 比如一个MR任务：用户通过RPC协议ApplicationClientProtocol向RM提交应用，一旦MR的AM启动之后，通过了一个RPC协议MRClientProtocol直接与MRAppMaster通信，见下图：
@@ -52,7 +52,11 @@ TODO：这里的客户端和概述中说的Client客户端是否是同一个？�
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/客户端获取应用信息及控制应用程序.png?raw=true)
 
 #### 2.2 客户端编程库
+YARN还提供了能与RM交互完成各种操作的编程库org.apache.hadoop.yarn.client.YarnClient，这个库对常用函数进行了封装，提供了重试、容错等机制，可以使用该库快速开发一个YARN客户端
 
+直接从RPC协议实现一个YARN客户端：[AnYarnApplicationClientDemo.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop/src/yarn/design/client/AnYarnApplicationClientDemo.java)
+
+利用yarn提供的YarnClient实现一个客户端： 
 
 ### 5. 源码阅读引导
 - 通信协议：
