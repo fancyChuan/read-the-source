@@ -58,6 +58,18 @@ YARN还提供了能与RM交互完成各种操作的编程库org.apache.hadoop.ya
 
 利用yarn提供的YarnClient实现一个客户端： 
 
+### 3. ApplicationMaster设计
+AM需要与RM和NM两个服务交互，与RM交互，获得任务计算所需的资源；与NM交互，可启动计算任务container并监控知道运行完成
+#### 3.1 ApplicationMaster编写流程
+AM-RM编写流程
+- 步骤1：ApplicationMaster通过RPC函数ApplicationMasterProtocol#registerApplicationMaster向RM注册
+
+
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/ApplicationMaster与ResourceManager通信流程.png?raw=true)
+
+
+
 ### 5. 源码阅读引导
 - 通信协议：
 - 编程库：
