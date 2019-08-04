@@ -31,6 +31,15 @@ TODO：这里的客户端和概述中说的Client客户端是否是同一个？�
 - 步骤1：Client通过RPC函数ApplicationClientProtocol#getNewApplication从RM中获取唯一的applicationID
 - 步骤2：Client通过RPC函数ApplicationClientProtocol#submitApplication将ApplicationMaster提交到RM上
 
+除了实现提交Application的功能，客户端还需要提供以下几个接口方法的实现
+- getApplicationReport() 获取application运行报告，包括用户、队列、运行状态等信息
+- forceKillApplication() 强制杀死application
+- getClusterMetrics() 获取集群的metric信息
+- getAllApplications() 查看当前系统中所有应用程序
+- getClusterNodes() 查询当前系统中所有节点信息
+- ...
+
+接口的源码位置： [org.apache.hadoop.yarn.api.ApplicationClientProtocol](https://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/api/ApplicationClientProtocol.java)
 
 ### 5. 源码阅读引导
 - 通信协议：
