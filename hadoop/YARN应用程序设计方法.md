@@ -63,7 +63,7 @@ AM需要与RM和NM两个服务交互，与RM交互，获得任务计算所需的
 #### 3.1 ApplicationMaster编写流程
 AM-RM编写流程
 - 步骤1：ApplicationMaster通过RPC函数ApplicationMasterProtocol#registerApplicationMaster向RM注册
-
+- 步骤2：ApplicationMaster通过RPC函数ApplicationMasterProtocol#allocate向RM申请资源
 
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/ApplicationMaster与ResourceManager通信流程.png?raw=true)
