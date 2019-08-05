@@ -90,7 +90,13 @@ public class AM2RMDemo {
              *                  strictContract： 必须释放的Container列表
              *                  contract： 包含资源总量和Container列表两类信息。AM可释放这些Container占用的资源，或者释放任意几个占用资源总量达到指定资源量的Container
              *      nm_tokens: NodeManager Token
+             *
+             *  亮点：周期性的心跳机制，让RM能够动态管理资源（多给资源或者抢占资源）！
+             *
+             *  另外，YARN采取覆盖式资源申请方式，即AM每次发出的资源请求会覆盖掉之前在同一节点且优先级相同的资源请求。
+             *  所以这就要求同一节点上相同优先级的资源请求只能存在一种，否则前面申请的资源就会被覆盖掉
              */
+            // 注意：即使AM不需要任何资源，也需要周期性调用这个函数以维持和RM之间的心跳。维持心跳另一个功能是：周期性询问RM是否存在分配给应用程序的资源
             AllocateResponse allocateResponse = rmClient.allocate(allocateRequest);
             // 根据RM的应答信息设计接下来的逻辑，比如将资源分配任务
             allocateResponse.getAMCommand(); // 获得命令
