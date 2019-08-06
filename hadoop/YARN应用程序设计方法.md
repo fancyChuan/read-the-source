@@ -61,7 +61,7 @@ YARN还提供了能与RM交互完成各种操作的编程库org.apache.hadoop.ya
 ### 3. ApplicationMaster设计
 AM需要与RM和NM两个服务交互，与RM交互，获得任务计算所需的资源；与NM交互，可启动计算任务container并监控知道运行完成
 #### 3.1 ApplicationMaster编写流程
-AM-RM编写流程
+##### 3.1.1 AM-RM编写流程
 - 步骤1：ApplicationMaster通过RPC函数ApplicationMasterProtocol#registerApplicationMaster向RM注册
 - 步骤2：ApplicationMaster通过RPC函数ApplicationMasterProtocol#allocate向RM申请资源
 - 步骤3：ApplicationMaster通过RPC函数ApplicationMasterProtocol#finishApplicationMaster通知RM应用程序已运行完毕，并退出
@@ -71,6 +71,9 @@ AM-RM编写流程
 参见： [AM2RMDemo.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop/src/yarn/design/client/AM2RMDemo.java)
 
 > TODO: 思考工厂模式如何优雅的使用？为什么要通过get()来获得工厂？
+
+##### 3.1.2 AM-NM编写流程
+- 步骤1： ApplicationMaster将申请到的资源二次分配给内部的任务，并通过RPC函数ContainerManagementProtocol#startContainer与对应的NM通信以启动Container
 
 ### 5. 源码阅读引导
 - 通信协议：
