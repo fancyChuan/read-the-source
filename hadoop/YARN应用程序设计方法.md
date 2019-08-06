@@ -64,11 +64,13 @@ AM需要与RM和NM两个服务交互，与RM交互，获得任务计算所需的
 AM-RM编写流程
 - 步骤1：ApplicationMaster通过RPC函数ApplicationMasterProtocol#registerApplicationMaster向RM注册
 - 步骤2：ApplicationMaster通过RPC函数ApplicationMasterProtocol#allocate向RM申请资源
-
+- 步骤3：ApplicationMaster通过RPC函数ApplicationMasterProtocol#finishApplicationMaster通知RM应用程序已运行完毕，并退出
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/ApplicationMaster与ResourceManager通信流程.png?raw=true)
 
+参见： [AM2RMDemo.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop/src/yarn/design/client/AM2RMDemo.java)
 
+> TODO: 思考工厂模式如何优雅的使用？为什么要通过get()来获得工厂？
 
 ### 5. 源码阅读引导
 - 通信协议：

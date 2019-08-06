@@ -3,14 +3,12 @@ package yarn.design.client;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.yarn.api.ApplicationMasterProtocol;
-import org.apache.hadoop.yarn.api.protocolrecords.AllocateRequest;
-import org.apache.hadoop.yarn.api.protocolrecords.AllocateResponse;
-import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterRequest;
-import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
-import org.apache.hadoop.yarn.api.records.ContainerId;
-import org.apache.hadoop.yarn.api.records.ResourceBlacklistRequest;
-import org.apache.hadoop.yarn.api.records.ResourceRequest;
+import org.apache.hadoop.yarn.api.protocolrecords.*;
+import org.apache.hadoop.yarn.api.protocolrecords.impl.pb.FinishApplicationMasterRequestPBImpl;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.hadoop.yarn.factories.RecordFactory;
+import org.apache.hadoop.yarn.factories.impl.pb.RecordFactoryPBImpl;
 import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 import org.apache.hadoop.yarn.util.Records;
 
@@ -19,10 +17,14 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 
 public class AM2RMDemo {
+    long clientVersion = 1L;
+    ApplicationMasterProtocol rmClient;
 
-    public void doSomething() throws IOException, YarnException, InterruptedException {
-        long clientVersion = 1L;
-        ApplicationMasterProtocol rmClient = RPC.getProxy(ApplicationMasterProtocol.class, clientVersion, new InetSocketAddress("lcoalhost", 666), new Configuration());
+    public AM2RMDemo() throws IOException {
+        this.rmClient = RPC.getProxy(ApplicationMasterProtocol.class, clientVersion, new InetSocketAddress("lcoalhost", 666), new Configuration());
+    }
+
+    public void firstAndSecond() throws IOException, YarnException, InterruptedException {
         /**
          * 步骤1 AM通过RPC函数向RM注册
          *  （1）创建Protocol buffers消息RegisterApplicationMasterRequest
@@ -111,5 +113,26 @@ public class AM2RMDemo {
             // ...
             Thread.sleep(1000);
         }
+    }
+
+    /**
+     * 步骤3： AM通知RM运行完成，退出
+     *  3.1 FinishApplicationMasterRequest，发送到RM的请求，主要封装了以下字段：
+     *      diagnostics: 诊断信息，当APP失败时，记录相关日志信息
+     *      tracking_url: AM对外提供的web url
+     *      final_application_status: app最终的状态，由枚举类 FinalApplicationStatus 定义，有UNDEFINED,SUCCEEDED,FAILED,KILLED四种
+     *  3.2 client发送这个请求到RM
+     */
+    public static void third(ApplicationMasterProtocol rmClient) throws IOException, YarnException {
+        FinalApplicationStatus appStatus = FinalApplicationStatus.SUCCEEDED; // 应用的状态
+        ApplicationAttemptId applicationAttemptId;
+        // 通过工厂的方式新建对象 TODO：为什么要用这种方式，Records.newRecord() 有什么不足？还有工厂模式，通过get()来获得工厂有什么好处？
+        RecordFactory recordFactory = RecordFactoryPBImpl.get();
+        FinishApplicationMasterRequest finishRequest = recordFactory.newRecordInstance(FinishApplicationMasterRequestPBImpl.class);
+        finishRequest.setFinalApplicationStatus(appStatus);
+        finishRequest.setTrackingUrl("");
+        finishRequest.setDiagnostics("");
+        // 告知RM应用已完成
+        rmClient.finishApplicationMaster(finishRequest);
     }
 }
