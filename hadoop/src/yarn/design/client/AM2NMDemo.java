@@ -4,9 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.yarn.api.ContainerManagementProtocol;
-import org.apache.hadoop.yarn.api.protocolrecords.StartContainerRequest;
-import org.apache.hadoop.yarn.api.protocolrecords.StartContainersRequest;
-import org.apache.hadoop.yarn.api.protocolrecords.StartContainersResponse;
+import org.apache.hadoop.yarn.api.protocolrecords.*;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.impl.pb.TokenPBImpl;
@@ -81,5 +79,13 @@ public class AM2NMDemo {
         }
     }
 
-
+    /**
+     * 步骤2：向NM咨询各Container运行状态
+     */
+    public void second() throws IOException, YarnException {
+        GetContainerStatusesRequest getStatusRequest = Records.newRecord(GetContainerStatusesRequest.class);
+        GetContainerStatusesResponse statusesResponse = cm.getContainerStatuses(getStatusRequest);
+        statusesResponse.getContainerStatuses();
+        statusesResponse.getFailedRequests();
+    }
 }
