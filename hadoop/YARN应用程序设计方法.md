@@ -75,6 +75,7 @@ AM需要与RM和NM两个服务交互，与RM交互，获得任务计算所需的
 ##### 3.1.2 AM-NM编写流程
 - 步骤1： ApplicationMaster将申请到的资源二次分配给内部的任务，并通过RPC函数ContainerManagementProtocol#startContainer与对应的NM通信以启动Container
 - 步骤2： 通过RPC函数ContainerManagementProtocol#getContainerStatuses向NM咨询各Container运行状态，必要时AM为任务重新申请资源
+- 步骤3： Container运行完成够，通过RPC函数ContainerManagementProtocol#stopContainer释放资源
 
 ### 5. 源码阅读引导
 - 通信协议：

@@ -88,4 +88,15 @@ public class AM2NMDemo {
         statusesResponse.getContainerStatuses();
         statusesResponse.getFailedRequests();
     }
+
+    /**
+     * 步骤3： Container运行完成后释放资源
+     */
+    public void thrid() throws IOException, YarnException {
+        StopContainersRequest stopRequest = Records.newRecord(StopContainersRequest.class);
+        // stopRequest.setContainerIds();
+        StopContainersResponse stopResponse = cm.stopContainers(stopRequest);
+        stopResponse.getFailedRequests();
+        stopResponse.getSuccessfullyStoppedContainers();
+    }
 }
