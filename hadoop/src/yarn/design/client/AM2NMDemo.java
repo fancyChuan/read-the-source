@@ -20,9 +20,6 @@ import java.util.ArrayList;
 public class AM2NMDemo {
     ContainerManagementProtocol cm; // ContainerManagement对象
 
-    /**
-     * 步骤1：与NM通信启动Container
-     */
     public AM2NMDemo(Container container) throws IOException {
         /**
          * 1.1 从申请到的Container中获取资源相关信息，包括即将要在NodeManager上启动的地址信息，并联系NM再把本地启动一个代理客户端
@@ -32,6 +29,12 @@ public class AM2NMDemo {
         System.out.println("Connecting to ContainerManager at " + cmIpPortStr);
         // 启动代理客户端
         this.cm = (ContainerManagementProtocol) RPC.getProxy(ContainerManagementProtocol.class, 1L, cmAddress, new Configuration());
+    }
+
+    /**
+     * 步骤1：与NM通信启动Container
+     */
+    public void first() throws IOException {
         /**
          * 1.2 把Container的执行环境等相关信息封装到ContainerLaunchContext中。属性有：
          *      localResources: 所需的本地资源，比如字典文件、jar包等，已k/v格式存储
@@ -77,4 +80,6 @@ public class AM2NMDemo {
             e.printStackTrace();
         }
     }
+
+
 }
