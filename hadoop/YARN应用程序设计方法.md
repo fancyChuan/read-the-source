@@ -77,6 +77,20 @@ AM需要与RM和NM两个服务交互，与RM交互，获得任务计算所需的
 - 步骤2： 通过RPC函数ContainerManagementProtocol#getContainerStatuses向NM咨询各Container运行状态，必要时AM为任务重新申请资源
 - 步骤3： Container运行完成够，通过RPC函数ContainerManagementProtocol#stopContainer释放资源
 
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/ApplicationMaster与NodeManager通信流程.png?raw=true)
+
+参见： [AM2NMDemo.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop/src/yarn/design/client/AM2NMDemo.java)
+
+#### 3.2 ApplicationMaster编程库
+跟YarnClient一样，AM和RM、NM之间的交互部分也有一个通用的编程库
+##### 3.2.1 AM-RM编程库
+- AM与RM的核心交互逻辑由：AMRMClientImpl和AMRMClientAsync实现
+    - AMRMClientImpl 阻塞式实现
+    - AMRMClientAsync 非阻塞式实现
+    
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/AM-RM编程库.png?raw=true)
+
+
 ### 5. 源码阅读引导
 - 通信协议：
 - 编程库：
