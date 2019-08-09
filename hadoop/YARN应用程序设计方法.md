@@ -98,6 +98,14 @@ AM与RM的核心交互逻辑由：AMRMClientImpl和AMRMClientAsync实现
     
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/AM-RM编程库.png?raw=true)
 
+##### 3.2.2 AM-NM编程库
+> AM需要与NM通信，而RM也需要跟NM通信以启动AM。因此这个地方编程库命名为 NMClient 而不是 AMNMClient
+
+AM和NM的核心交互逻辑由：NMClientImpl和NMClientAsync实现，跟AM-RM的编程库一样，一个是同步一个是异步
+
+
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/AM-NM编程库.png?raw=true)
 
 ### 5. 源码阅读引导
 - 通信协议：
