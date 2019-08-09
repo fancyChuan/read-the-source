@@ -84,9 +84,17 @@ AM需要与RM和NM两个服务交互，与RM交互，获得任务计算所需的
 #### 3.2 ApplicationMaster编程库
 跟YarnClient一样，AM和RM、NM之间的交互部分也有一个通用的编程库
 ##### 3.2.1 AM-RM编程库
-- AM与RM的核心交互逻辑由：AMRMClientImpl和AMRMClientAsync实现
-    - AMRMClientImpl 阻塞式实现
-    - AMRMClientAsync 非阻塞式实现
+AM与RM的核心交互逻辑由：AMRMClientImpl和AMRMClientAsync实现
+- AMRMClientImpl 阻塞式实现
+- AMRMClientAsync 非阻塞式实现
+    - AM触发一个操作后，ARRMClientAsync将它封装成事件放入事件队列后返回，而事件的处理由一个专门的线程地负责
+    - 如果想实现自己的AM，需要实现AMRMClientAsync.CallbackHandler，提供有5个回调函数
+        - public void onContainersCompleted(List<ContainerStatus> statuses);
+        - public void onContainersAllocated(List<Container> containers);
+        - public void onShutdownRequest();
+        - public void onNodesUpdated(List<NodeReport> updatedNodes);
+        - public void onError(Throwable e);
+> 几个回调函数的调用时机及应用示例参见 [AM2RMBaseOnModuleAsync.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop/src/yarn/design/client/AM2RMBaseOnModuleAsync.java)
     
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/AM-RM编程库.png?raw=true)
 
