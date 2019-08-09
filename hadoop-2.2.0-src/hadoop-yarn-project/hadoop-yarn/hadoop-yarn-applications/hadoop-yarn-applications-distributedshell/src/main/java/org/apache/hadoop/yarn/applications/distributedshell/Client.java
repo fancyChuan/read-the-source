@@ -164,9 +164,21 @@ public class Client {
   public static void main(String[] args) {
     boolean result = false;
     try {
+        /**
+         * 实例化一个客户端对象
+         *  1. 设置AM的主类，默认为"org.apache.hadoop.yarn.applications.distributedshell.ApplicationMaster"，这个类名后面由NM实例化出来
+         *  2. 实例化一个YarnClient对象并初始化 yarnClient = YarnClient.createYarnClient(); todo：YarnClient的设计实现细节
+         *  3. 设置命令行可以接受的参数，使用的是hadoop-common-project工程下hadoop-common模块的Options类
+         */
       Client client = new Client();
       LOG.info("Initializing Client");
       try {
+        /**
+         * 这里的初始化做了以下几个事情：
+         *  1. 解析通过shell命令传进来的参数
+         *  2. 根据参数执行不同的操作，并给属性赋值
+         *  3. 返回是否可以往下执行的标识doRun
+         */
         boolean doRun = client.init(args);
         if (!doRun) {
           System.exit(0);
@@ -176,6 +188,21 @@ public class Client {
         client.printUsage();
         System.exit(-1);
       }
+        /**
+         * 运行客户端：
+         *  1. 启动yarnClient，也就是yarnClient.start()
+         *  2. 从ASM(Applications Manager)获取信息，比如：
+         *      1> 集群概况：比如NM的数量
+         *      2> 集群的节点报告
+         *          1) 节点id
+         *          2) 节点地址
+         *          3) 机架号
+         *          4) 节点上的Container数量
+         *  3. 获取队列信息
+         *      1> 基本信息：队列名、当前可用容量、最大可用容量、队列上的app数、子队列数量
+         *      2> 队列访问控制列表：队列名，访问控制列表（SUBMIT_APPLICATIONS、ADMINISTER_QUEUE）
+         *  4.
+         */
       result = client.run();
     } catch (Throwable t) {
       LOG.fatal("Error running CLient", t);
@@ -243,7 +270,7 @@ public class Client {
    */
   public boolean init(String[] args) throws ParseException {
 
-    CommandLine cliParser = new GnuParser().parse(opts, args);
+    CommandLine cliParser = new GnuParser().parse(opts, args); // 解析通过shell命令传进来的参数
 
     if (args.length == 0) {
       throw new IllegalArgumentException("No args specified for client to initialize");
@@ -258,7 +285,7 @@ public class Client {
       debugFlag = true;
 
     }
-
+    // 获取application的配置信息
     appName = cliParser.getOptionValue("appname", "DistributedShell");
     amPriority = Integer.parseInt(cliParser.getOptionValue("priority", "0"));
     amQueue = cliParser.getOptionValue("queue", "default");

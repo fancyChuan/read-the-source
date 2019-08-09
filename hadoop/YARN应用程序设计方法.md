@@ -124,8 +124,14 @@ org.apache.hadoop.yarn.applications.distributedshell.Client
 ```
 DistributedShell在源码中由三部分组成，分别为：
 - 客户端：[Client.java](https:github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/Client.java)
+    - 有三个构造函数：
+        - public Client() throws Exception 
+        - public Client(Configuration conf) throws Exception 使用自带的ApplicationMaster类
+        - Client(String appMasterMainClass, Configuration conf) 可以指定使用的ApplicationMaster实现类
+    - 
 - AM实现：[ApplicationMaster.java](https:github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/ApplicationMaster.java)
 - 客户端和AM共用的常量：[DSConstans.java](https:github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/DSConstans.java)
+
 
 ### 5. 源码阅读引导
 - 通信协议：
