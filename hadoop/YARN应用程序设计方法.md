@@ -103,7 +103,9 @@ AM与RM的核心交互逻辑由：AMRMClientImpl和AMRMClientAsync实现
 
 AM和NM的核心交互逻辑由：NMClientImpl和NMClientAsync实现，跟AM-RM的编程库一样，一个是同步一个是异步
 
+NMClientAsyne.CallbackHandler类似的，也有6个回调函数。
 
+参见: [AM2NMBaseOnModule.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop/src/yarn/design/client/AM2NMBaseOnModule.java)
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/AM-NM编程库.png?raw=true)
 

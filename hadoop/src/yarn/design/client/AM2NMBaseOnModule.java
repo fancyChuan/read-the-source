@@ -1,13 +1,29 @@
 package yarn.design.client;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.ContainerStatus;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync.CallbackHandler;
+import org.apache.hadoop.yarn.client.api.async.impl.NMClientAsyncImpl;
+import org.apache.hadoop.yarn.util.Records;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
 
 public class AM2NMBaseOnModule {
+    public static void main(Container container, String[] args) {
+        NMClientAsyncImpl nmClientAsync = new NMClientAsyncImpl(new MyNMCallbackHandler());
+        nmClientAsync.init(new Configuration());
+        nmClientAsync.start(); // 启动与NM通信的客户端
+
+        ContainerLaunchContext ctx = Records.newRecord(ContainerLaunchContext.class);
+        nmClientAsync.startContainerAsync(container, ctx);  // 启动Container
+        nmClientAsync.getContainerStatusAsync(container.getId(), container.getNodeId());
+        nmClientAsync.stopContainerAsync(container.getId(), container.getNodeId());
+        nmClientAsync.stop();
+    }
 }
 
 
