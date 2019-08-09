@@ -109,6 +109,24 @@ NMClientAsyne.CallbackHandler类似的，也有6个回调函数。
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/AM-NM编程库.png?raw=true)
 
+### 4. YARN应用实例
+YARN自带了两个Application示例程序：DistributedShell和UNManagedAM
+#### 4.1 DistributedShell
+可以分布式运行shell命令的应用程序，使用示例
+```
+bin/hadoop jar share/hadoop/yarn/hadoop-yarn-applications-distributedshell-*.jar \
+org.apache.hadoop.yarn.applications.distributedshell.Client 
+  --jar share/hadoop/yarn/hadoop-yarn-applications-distributedshell-*.jar \
+  --shell_command ls \
+  --container_memory 350 \
+  --master_memory 350 \
+  --priority 10
+```
+DistributedShell在源码中由三部分组成，分别为：
+- 客户端：[Client.java](https:github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/Client.java)
+- AM实现：[ApplicationMaster.java](https:github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/ApplicationMaster.java)
+- 客户端和AM共用的常量：[DSConstans.java](https:github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/DSConstans.java)
+
 ### 5. 源码阅读引导
 - 通信协议：
 - 编程库：
