@@ -167,7 +167,7 @@ public class Client {
         /**
          * 实例化一个客户端对象
          *  1. 设置AM的主类，默认为"org.apache.hadoop.yarn.applications.distributedshell.ApplicationMaster"，这个类名后面由NM实例化出来
-         *  2. 实例化一个YarnClient对象并初始化 yarnClient = YarnClient.createYarnClient(); todo：YarnClient的设计实现细节
+         *  2. 实例化一个YarnClient对象并初始化 yarnClient = YarnClient.createYarnClient(); 使用的是YarnClientImpl实现类 todo：YarnClientImpl的设计实现细节
          *  3. 设置命令行可以接受的参数，使用的是hadoop-common-project工程下hadoop-common模块的Options类
          */
       Client client = new Client();
@@ -201,7 +201,12 @@ public class Client {
          *  3. 获取队列信息
          *      1> 基本信息：队列名、当前可用容量、最大可用容量、队列上的app数、子队列数量
          *      2> 队列访问控制列表：队列名，访问控制列表（SUBMIT_APPLICATIONS、ADMINISTER_QUEUE）
-         *  4.
+         *  4. 创建一个新应用
+         *      1> 通过GetNewApplicationRequest与RM通信创建一个APP，并拿到APPID
+         *      2> 创建一个ApplicationSubmissionContext，设置APPID
+         *      3> 将NewApplicationResponse和ApplicationSubmissionContext一起封装到YarnClientApplication
+         *  5. 检查最大可用资源（主要是内存）是否能满足要求
+         *  6. 第4步中得到的ApplicationSubmissionContext实例，对其属性进行赋值
          */
       result = client.run();
     } catch (Throwable t) {
@@ -227,7 +232,7 @@ public class Client {
   Client(String appMasterMainClass, Configuration conf) {
     this.conf = conf;
     this.appMasterMainClass = appMasterMainClass;
-    yarnClient = YarnClient.createYarnClient();
+    yarnClient = YarnClient.createYarnClient(); // 这其实是一个工厂方法，使用了YarnClientImpl创建出一个实例化客户端
     yarnClient.init(conf);
     opts = new Options();
     opts.addOption("appname", true, "Application Name. Default value - DistributedShell");
@@ -392,8 +397,8 @@ public class Client {
     }		
 
     // Get a new application id
-    YarnClientApplication app = yarnClient.createApplication();
-    GetNewApplicationResponse appResponse = app.getNewApplicationResponse();
+    YarnClientApplication app = yarnClient.createApplication(); // todo：为什么这里要做一个封装？出于什么考虑？
+    GetNewApplicationResponse appResponse = app.getNewApplicationResponse(); // 这里把上一步的封装又出去来，那么YarnClientApplication存在的意义是什么
     // TODO get min/max resource capabilities from RM and change memory ask if needed
     // If we do not have min/max, we may not be able to correctly request 
     // the required resources from the RM for the app master
