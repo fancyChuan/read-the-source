@@ -229,7 +229,8 @@ public class Client {
          *          3)组装执行命令commands
          *          4)检查权限并设置想要的tokens
          *      3> 设置优先级、队列
-         *  7. 监控应用状态：每隔一秒向ASM咨询app的状态信息并检查是否运行结束，也就是说result=true的时候说明app已经运行完成
+         *  7. 提交应用：yarnClient.submitApplication(appContext);
+         *  8. 监控应用状态：每隔一秒向ASM咨询app的状态信息并检查是否运行结束，也就是说result=true的时候说明app已经运行完成
          *      实现心跳检测的细节：while(true) {...} 当达到某些状态的时候return，从而跳出循环
          */
       result = client.run();
