@@ -112,7 +112,11 @@ NMClientAsyne.CallbackHandler类似的，也有6个回调函数。
 ### 4. YARN应用实例
 YARN自带了两个Application示例程序：DistributedShell和UNManagedAM
 #### 4.1 DistributedShell
-可以分布式运行shell命令的应用程序，使用示例
+可以分布式运行shell命令的应用程序，使用语法如下图：
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/DistributedShell参数含义及使用示例.png?raw=true)
+
+使用示例
 ```
 bin/hadoop jar share/hadoop/yarn/hadoop-yarn-applications-distributedshell-*.jar \
 org.apache.hadoop.yarn.applications.distributedshell.Client 
