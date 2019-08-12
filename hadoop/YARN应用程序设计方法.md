@@ -132,7 +132,16 @@ DistributedShell在源码中由三部分组成，分别为：
         - public Client() throws Exception 
         - public Client(Configuration conf) throws Exception 使用自带的ApplicationMaster类
         - Client(String appMasterMainClass, Configuration conf) 可以指定使用的ApplicationMaster实现类
-    - 
+    - 组装shell命令
+    ```
+    java -Xmx 350m org.apache.hadoop.yarn.applications.distributedshell.ApplicationMaster \
+    --container_menory 350 \
+    --num_containers 10 \ 
+    --priority 10 \
+    --shell_command ls \
+    1> $LOG_DIR/AppMaster.stdout \
+    2> $LOG_DIR/AppMaster.stderr
+    ```
 - AM实现：[ApplicationMaster.java](https:github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/ApplicationMaster.java)
 - 客户端和AM共用的常量：[DSConstans.java](https:github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/DSConstans.java)
 

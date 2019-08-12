@@ -176,7 +176,7 @@ public class Client {
         /**
          * 这里的初始化做了以下几个事情：
          *  1. 解析通过shell命令传进来的参数
-         *  2. 根据参数执行不同的操作，并给属性赋值
+         *  2. 根据参数执行不同的操作，并给属性赋值，比如appMasterJar配置jar包路径，这个到时候将在NM通过反射实例化出AM的时候需要用
          *  3. 返回是否可以往下执行的标识doRun
          */
         boolean doRun = client.init(args);
@@ -206,7 +206,31 @@ public class Client {
          *      2> 创建一个ApplicationSubmissionContext，设置APPID
          *      3> 将NewApplicationResponse和ApplicationSubmissionContext一起封装到YarnClientApplication
          *  5. 检查最大可用资源（主要是内存）是否能满足要求
-         *  6. 第4步中得到的ApplicationSubmissionContext实例，对其属性进行赋值
+         *  6. 第4步中得到的ApplicationSubmissionContext实例appContext，对其属性进行赋值
+         *      1> appName
+         *      2> 启动AM需要的上下文信息：也就是ContainerLaunchContext amContainer
+         *          1)AM需要用到的资源localResources
+         *              * AppMaster.jar
+         *                  将指定的appMasterJar上传到HDFS，覆盖写入
+         *                      使用fs.copyFromLocalFile(delSrc, overwrite, src, dst)方法
+         *                      目标位置：/user/$username/$appName/$appId/APPMaster.jar
+         *                      拿到上传后文件的元信息(FileStatus)：修改时间、文件大小
+         *                      将信息封装成LocalResource amJarRsrc
+         *                          设置资源类型：file or archive
+         *                          设置资源可见性
+         *                          设置资源在HDFS上的路径，也就是上一步从本地上传到HDFS的地方/user/$username/$appName/$appId/APPMaster.jar
+         *                          设置修改时间、资源大小
+         *              * log4j.properties
+         *                  设置日志相关的配置
+         *          2)AM需要的环境变量
+         *              DISTRIBUTEDSHELLSCRIPTLOCATION
+         *              DISTRIBUTEDSHELLSCRIPTTIMESTAMP
+         *              DISTRIBUTEDSHELLSCRIPTLEN
+         *          3)组装执行命令commands
+         *          4)检查权限并设置想要的tokens
+         *      3> 设置优先级、队列
+         *  7. 监控应用状态：每隔一秒向ASM咨询app的状态信息并检查是否运行结束，也就是说result=true的时候说明app已经运行完成
+         *      实现心跳检测的细节：while(true) {...} 当达到某些状态的时候return，从而跳出循环
          */
       result = client.run();
     } catch (Throwable t) {
@@ -431,7 +455,7 @@ public class Client {
     LOG.info("Copy App Master jar from local filesystem and add to local environment");
     // Copy the application master jar to the filesystem 
     // Create a local resource to point to the destination jar path 
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = FileSystem.get(conf); // todo:这个地方是面向接口编程，真正实例化出来的文件系统类型由配置文件决定，采用反射的机制。这部分的实现代码值得细细品味！
     Path src = new Path(appMasterJar);
     String pathSuffix = appName + "/" + appId.getId() + "/AppMaster.jar";	    
     Path dst = new Path(fs.getHomeDirectory(), pathSuffix);
@@ -445,7 +469,7 @@ public class Client {
     amJarRsrc.setType(LocalResourceType.FILE);
     // Set visibility of the resource 
     // Setting to most private option
-    amJarRsrc.setVisibility(LocalResourceVisibility.APPLICATION);	   
+    amJarRsrc.setVisibility(LocalResourceVisibility.APPLICATION); // todo：资源的可见性？指什么级别的应用可以使用这些资源？
     // Set the resource to be copied over
     amJarRsrc.setResource(ConverterUtils.getYarnUrlFromPath(dst)); 
     // Set timestamp and length of file so that the framework 
@@ -585,7 +609,7 @@ public class Client {
     // Not needed in this scenario
     // amContainer.setServiceData(serviceData);
 
-    // Setup security tokens
+    // Setup security tokens todo: 回头也需要详细了解下安全检查
     if (UserGroupInformation.isSecurityEnabled()) {
       Credentials credentials = new Credentials();
       String tokenRenewer = conf.get(YarnConfiguration.RM_PRINCIPAL);
