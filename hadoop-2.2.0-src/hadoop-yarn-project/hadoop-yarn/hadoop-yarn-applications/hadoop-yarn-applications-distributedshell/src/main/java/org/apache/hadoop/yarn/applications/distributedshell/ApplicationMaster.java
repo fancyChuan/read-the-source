@@ -227,8 +227,22 @@ public class ApplicationMaster {
   public static void main(String[] args) {
     boolean result = false;
     try {
+        /*
+            实例化一个对象，这一步只完成了YarnConfiguration实例化
+         */
       ApplicationMaster appMaster = new ApplicationMaster();
       LOG.info("Initializing ApplicationMaster");
+        /* 完成appMaster对象各种属性的初始化（赋值）操作
+            1. 设置命令行可以接受的参数，这一步跟Client中的设置类型一样
+            2. 解析传过来的命令行参数，new org.apache.commons.cli.GnuParser().parse(options, args)
+            3. 处理环境变量
+                1> 检查是否有CONTAINER_ID
+                    * 有：获取CONTAINER_ID，并拿到appAttemptID（该对象可获取到appid、clustertimestamp、attemptid）
+                    * 没有：说明在测试，从传入的命令行参数中获取
+                2> 检查是否有其他环境变量：APP_SUBMIT_TIME_ENV、NM_HOST、NM_HTTP_PORT、NM_PORT
+            4. 检查命令行参数是否有：shell_command、shell_env
+            5. 检查环境变量：DISTRIBUTEDSHELLSCRIPTLOCATION、DISTRIBUTEDSHELLSCRIPTTIMESTAMP、DISTRIBUTEDSHELLSCRIPTLEN
+         */
       boolean doRun = appMaster.init(args);
       if (!doRun) {
         System.exit(0);
@@ -332,10 +346,10 @@ public class ApplicationMaster {
       dumpOutDebugInfo();
     }
 
-    Map<String, String> envs = System.getenv();
+    Map<String, String> envs = System.getenv(); // todo：这个地方为什么要获得环境变量？难道RM通知NM启动AM的时候会顺便设置环境变量？
 
-    if (!envs.containsKey(Environment.CONTAINER_ID.name())) {
-      if (cliParser.hasOption("app_attempt_id")) {
+    if (!envs.containsKey(Environment.CONTAINER_ID.name())) { // todo：没有获取到CONTAINER_ID，说明是测试环境？
+      if (cliParser.hasOption("app_attempt_id")) { // app_attempt_id是在测试才需要
         String appIdStr = cliParser.getOptionValue("app_attempt_id", "");
         appAttemptID = ConverterUtils.toApplicationAttemptId(appIdStr);
       } else {
