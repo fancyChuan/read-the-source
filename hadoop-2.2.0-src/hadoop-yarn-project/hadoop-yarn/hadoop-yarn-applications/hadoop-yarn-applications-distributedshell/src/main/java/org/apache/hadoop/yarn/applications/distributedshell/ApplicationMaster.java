@@ -247,6 +247,19 @@ public class ApplicationMaster {
       if (!doRun) {
         System.exit(0);
       }
+      /* AM跟RM申请资源，并在NM启动Container完成计算任务
+            1. 拿到当前用户的权限凭证 Credentials（提供读写secret keys和tokens的工具）
+            2. 将相关secretKey/tokens写入DataOutputBuffer
+            3. 移除AM-RM tokens，并封装剩余所有的tokens
+            4. 启动amRMClient和nmClientAsync，并指定相应的事件处理器
+            5. 获得本机hostname，向RM注册自己：需要主机名、端口、trackingUrl
+            6. amRMClient申请需要的资源，直到所需的所有资源都申请完成
+            7. 执行finish()：
+                等所有事件线程执行完成，也就是整个application跑完。
+                调用nmClientAsync.stop()释放Container
+                处理application执行结果，修改相关状态值
+                amRMClient.stop()释放AM所在的Container
+       */
       result = appMaster.run();
     } catch (Throwable t) {
       LOG.fatal("Error running ApplicationMaster", t);
@@ -411,7 +424,7 @@ public class ApplicationMaster {
       }
     }
 
-    if (envs.containsKey(DSConstants.DISTRIBUTEDSHELLSCRIPTLOCATION)) {
+    if (envs.containsKey(DSConstants.DISTRIBUTEDSHELLSCRIPTLOCATION)) { // todo: 这个环境变量是如何设置的，Client只是传递了，但是设置的动作应该是RM吧，那RM怎么在NM中设置的？
       shellScriptPath = envs.get(DSConstants.DISTRIBUTEDSHELLSCRIPTLOCATION);
 
       if (envs.containsKey(DSConstants.DISTRIBUTEDSHELLSCRIPTTIMESTAMP)) {
@@ -467,10 +480,10 @@ public class ApplicationMaster {
     LOG.info("Starting ApplicationMaster");
 
     Credentials credentials =
-        UserGroupInformation.getCurrentUser().getCredentials();
+        UserGroupInformation.getCurrentUser().getCredentials(); // todo：Credentials作用和权限控制细节
     DataOutputBuffer dob = new DataOutputBuffer();
     credentials.writeTokenStorageToStream(dob);
-    // Now remove the AM->RM token so that containers cannot access it.
+    // Now remove the AM->RM token so that containers cannot access it. // todo：为什么？出于什么考虑？
     Iterator<Token<?>> iter = credentials.getAllTokens().iterator();
     while (iter.hasNext()) {
       Token<?> token = iter.next();
@@ -478,7 +491,7 @@ public class ApplicationMaster {
         iter.remove();
       }
     }
-    allTokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
+    allTokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength()); // todo: 这种数据处理方式也值得学习
 
     AMRMClientAsync.CallbackHandler allocListener = new RMCallbackHandler();
     amRMClient = AMRMClientAsync.createAMRMClientAsync(1000, allocListener);
@@ -486,7 +499,7 @@ public class ApplicationMaster {
     amRMClient.start();
 
     containerListener = createNMCallbackHandler();
-    nmClientAsync = new NMClientAsyncImpl(containerListener);
+    nmClientAsync = new NMClientAsyncImpl(containerListener);// todo: 为什么跟amRMClient的实例化不一样？
     nmClientAsync.init(conf);
     nmClientAsync.start();
 
@@ -523,17 +536,17 @@ public class ApplicationMaster {
     // executed on them ( regardless of success/failure).
     for (int i = 0; i < numTotalContainers; ++i) {
       ContainerRequest containerAsk = setupContainerAskForRM();
-      amRMClient.addContainerRequest(containerAsk);
+      amRMClient.addContainerRequest(containerAsk); // todo: 申请资源的细节是怎么样的？
     }
     numRequestedContainers.set(numTotalContainers);
 
     while (!done
-        && (numCompletedContainers.get() != numTotalContainers)) {
+        && (numCompletedContainers.get() != numTotalContainers)) { // 这里状态值的变化是通过事件处理器RMCallbackHandler处理的
       try {
         Thread.sleep(200);
       } catch (InterruptedException ex) {}
     }
-    finish();
+    finish(); // todo：为什么这里要封装，有什么好处？
     
     return success;
   }
