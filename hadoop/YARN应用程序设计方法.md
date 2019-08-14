@@ -145,7 +145,15 @@ DistributedShell在源码中由三部分组成，分别为：
     ```
     - 提交应用并监控是否运行完成
 - AM实现：[ApplicationMaster.java](https:github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/ApplicationMaster.java)
+    - 申请资源，并在资源没有达到或者任务失败时重新申请
+    - 通过一个新的线程联系NM启动Container并执行命令
 - 客户端和AM共用的常量：[DSConstans.java](https:github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/DSConstans.java)
+
+#### 4. Unmanaged AM
+AM需要占用一个Container，而该Container的位置不确定，给调试带来麻烦。为此引入Unmanaged AM，这种AM不需要RM启动和销毁，而是在客户端启动一个新的进程运行
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/UnmannedAMLauncher使用方法及参数含义.png?raw=true)
+
 
 
 ### 5. 源码阅读引导
