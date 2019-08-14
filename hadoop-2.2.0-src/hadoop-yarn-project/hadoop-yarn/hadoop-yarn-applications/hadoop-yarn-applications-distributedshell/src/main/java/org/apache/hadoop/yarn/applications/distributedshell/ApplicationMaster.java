@@ -259,6 +259,7 @@ public class ApplicationMaster {
                 调用nmClientAsync.stop()释放Container
                 处理application执行结果，修改相关状态值
                 amRMClient.stop()释放AM所在的Container
+            * 第4步中指定的事件处理器，回异步处理各类请求，todo：AM与RM、NM之间的事件处理值得细细品味
        */
       result = appMaster.run();
     } catch (Throwable t) {
@@ -601,7 +602,20 @@ public class ApplicationMaster {
     
     amRMClient.stop();
   }
-  
+
+    /**
+     * AM-RM核心交互逻辑
+     *  1. onContainersCompleted()
+     *      1> 遍历Containers的申请结果
+     *          ContainerState必须为COMPLETE  有NEW/RUNNING/COMPLETE三种
+     *          检查ContainerExitStatus的值，有5种情况：SUCCESS、INVALID、ABORTED、DISKS_FAILED、PREEMPTED
+     *          根据exitstatus更新numCompletedContainers、numFailedContainers、numAllocatedContainers、numRequestedContainers的值
+     *      2> 确定需要重新申请资源的数量并重新向RM申请资源
+     *      3> 把进度汇报给RM
+     *  2. onContainersAllocated()
+     *      通过LaunchContainerRunnable这个类，使用ContainerManagementProtocol通知NM启动Container并执行任务
+     *      注意：LaunchContainerRunnable是在一个新的线程中执行的，保证主线程处于非阻塞状态
+     */
   private class RMCallbackHandler implements AMRMClientAsync.CallbackHandler {
     @SuppressWarnings("unchecked")
     @Override
@@ -627,7 +641,7 @@ public class ApplicationMaster {
             // counts as completed
             numCompletedContainers.incrementAndGet();
             numFailedContainers.incrementAndGet();
-          } else {
+          } else { // ABORTED状态，需要重试：重新申请资源
             // container was killed by framework, possibly preempted
             // we should re-try as the container was lost for some reason
             numAllocatedContainers.decrementAndGet();
@@ -635,7 +649,7 @@ public class ApplicationMaster {
             // we do not need to release the container as it would be done
             // by the RM
           }
-        } else {
+        } else { // 执行成功
           // nothing to do
           // container completed successfully
           numCompletedContainers.incrementAndGet();
@@ -654,8 +668,12 @@ public class ApplicationMaster {
           amRMClient.addContainerRequest(containerAsk);
         }
       }
-      
-      if (numCompletedContainers.get() == numTotalContainers) {
+
+        // todo: 这个地方怎么少了向RM汇报进度的代码？但是在 getProgress() 方法也有相应的操作
+        // float process = (float) numCompletedContainers.get() / numTotalContainers;
+        // amRMClient.setProcess(process); // 这个代码是否可以？
+
+        if (numCompletedContainers.get() == numTotalContainers) {
         done = true;
       }
     }
