@@ -22,3 +22,14 @@ RM的主要功能：
 - 资源管理和调度，接受来自AM的资源申请请求，并分配资源
 
 #### 1.2 RM内部架构
+- 用户交互模块
+    - ClientRMService： 为普通用户提供服务，比如提交应用、获取应用状态
+    - AdminService： 为管理员提供的一套独立的服务接口，防止大量普通用户请求使管理员的管理命令饿死。比如动态更新节点列表、更新ACL、更新队列等
+    - WebApp： 更友好展示集群资源使用情况核应用运行状态等信息
+- NM管理模块
+    - NMLiveLinessMonitor: 监控NM是否活着，如果超过时间（默认10分钟）没有汇报心跳信息就认为已死掉，需要从集群中剔除
+    - NodesListManager：维护正常节点和异常节点列表，管理exclude、include（黑白名单）节点列表
+    - 
+    
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RM内部架构图.png?raw=true)
