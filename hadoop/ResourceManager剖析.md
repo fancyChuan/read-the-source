@@ -29,7 +29,28 @@ RM的主要功能：
 - NM管理模块
     - NMLiveLinessMonitor: 监控NM是否活着，如果超过时间（默认10分钟）没有汇报心跳信息就认为已死掉，需要从集群中剔除
     - NodesListManager：维护正常节点和异常节点列表，管理exclude、include（黑白名单）节点列表
-    - 
-    
+    - ResourceTrackerService： 处理来自NM的请求，主要包括心跳和注册两种
+- AM管理模块
+    - AMLivelinessMonitor： 监控AM是否活着。如果默认10分钟没有汇报心跳信息，则认为死掉了，会做以下处理：
+        - 它上面正在运行的Container需要置为失败状态
+        - AM本身会被重新分配到另一个节点上运行，默认每个AM重试2次，可修改
+    - ApplicationMasterLauncher： 与NM通信，要求为某个应用启动AM
+    - ApplicationMasterService（AMS）：处理来自AM的请求，主要包括注册和心跳两种信息
+- Application管理模块
+    - ApplicationACLsManager： 管理app的访问权限，包括两部分：
+        - 查看权限： 基本信息
+        - 修改权限： 修改应用优先级、kill应用等
+    - RMAppManager： 管理应用程序的启动和关闭
+    - ContainerAllocationExpirer： AM收到RM新分配的Container后需要在默认10分钟内在对应的NM启动该Container，否则RM将强制回收。已经分配的Container是否被回收由ContainerAllocationExpirer决定和执行
+- 状态机管理模块
+    - RMApp： 维护了一个应用的整个运行周期，包括启动到运行结束。一个Application会启动多个Application Attempt，因此也可以认为维护了一个Application启动的所有运行实例（Attempt）、
+    - RMAppAttempt： 维护一次运行尝试的生命周期
+    - RMContainer： 维护了一个Container的运行周期，包括从创建到运行结束整个过程
+    - RMNode： 为了一个NM的生命周期，包括从启动到运行结束整个过程
+- 安全管理模块
+    - 主要由ClientToAMSecretManager、ContainerTokenSecretManager、ApplicationTokenSecretManager等模块组成
+- 资源分配模块
+    - 主要涉及ResourceScheduler模块，负责按照一定的约束条件分配资源
+    - ResourceScheduler是一个可拔插式模块，yarn自带了一个批处理资源调度器FIFO和两个多用户调度器Fair Scheduler、Capacity Scheduler(默认的资源调度器)
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RM内部架构图.png?raw=true)
