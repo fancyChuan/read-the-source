@@ -42,21 +42,22 @@ import com.google.common.annotations.VisibleForTesting;
 
 public class RMContextImpl implements RMContext {
 
-  private final Dispatcher rmDispatcher;
+  private final Dispatcher rmDispatcher; // CMT: 中央异步调度器
 
   private final ConcurrentMap<ApplicationId, RMApp> applications
-    = new ConcurrentHashMap<ApplicationId, RMApp>();
+    = new ConcurrentHashMap<ApplicationId, RMApp>(); // CMT: 应用信息列表
 
   private final ConcurrentMap<NodeId, RMNode> nodes
-    = new ConcurrentHashMap<NodeId, RMNode>();
+    = new ConcurrentHashMap<NodeId, RMNode>(); // CMT: 节点列表
   
   private final ConcurrentMap<String, RMNode> inactiveNodes
-    = new ConcurrentHashMap<String, RMNode>();
+    = new ConcurrentHashMap<String, RMNode>(); // CMT：非活跃节点列表
 
-  private AMLivelinessMonitor amLivelinessMonitor;
-  private AMLivelinessMonitor amFinishingMonitor;
-  private RMStateStore stateStore = null;
-  private ContainerAllocationExpirer containerAllocationExpirer;
+  private AMLivelinessMonitor amLivelinessMonitor; // CMT: 运行中的AM心跳检测
+  private AMLivelinessMonitor amFinishingMonitor; // CMT: 运行完成的AM心跳检测
+  private RMStateStore stateStore = null; // 用于保存RM状态
+  private ContainerAllocationExpirer containerAllocationExpirer; // Container超时监控，如果一定时间内没使用分配到的Container，RM就会回收
+  // 以下是安全相关的组件
   private final DelegationTokenRenewer delegationTokenRenewer;
   private final AMRMTokenSecretManager amRMTokenSecretManager;
   private final RMContainerTokenSecretManager containerTokenSecretManager;

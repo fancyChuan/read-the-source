@@ -54,3 +54,17 @@ RM的主要功能：
     - ResourceScheduler是一个可拔插式模块，yarn自带了一个批处理资源调度器FIFO和两个多用户调度器Fair Scheduler、Capacity Scheduler(默认的资源调度器)
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RM内部架构图.png?raw=true)
+
+
+#### 1.3 ResourceManager事件与事件处理器
+RM采用事件驱动机制，内部所有服务和组件通过**中央异步调度器**组织在一起，不同组件之间通过事件进行交互，从而形成一个异步并行的高效系统
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RM内部事件与事件处理器.png?raw=true)
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RM内部事件与事件处理器交互图.png?raw=true)
+
+### 2. 用户交互模块
+#### 2.1 ClientRMService
+是一个RPC Server，实现了ApplicationClientProtocol协议。 代码位置:[ClientRMService.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/ClientRMService.java)
+
+类中有一个RMContext对象，通过该对象可以获取RM中绝大部分信息，包括节点列表、队列信息、应用列表等。其实现类为：[RMContextImpl.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/RMContextImpl.java)
