@@ -68,3 +68,26 @@ RM采用事件驱动机制，内部所有服务和组件通过**中央异步调�
 是一个RPC Server，实现了ApplicationClientProtocol协议。 代码位置:[ClientRMService.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/ClientRMService.java)
 
 类中有一个RMContext对象，通过该对象可以获取RM中绝大部分信息，包括节点列表、队列信息、应用列表等。其实现类为：[RMContextImpl.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/RMContextImpl.java)
+
+#### 2.2 AdminService
+管理员列表由 yarn.admin.acl 指定，在yarn-site.xml中设置，默认是"*"表示所有人都是管理员
+
+实现代码：[AdminService.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/AdminService.java)
+
+### 3. ApplicationMaster管理
+#### 3.1 AM整个生命周期
+- 步骤1：ApplicationMasterLauncher与对应的NM通信，启动AM
+- 步骤2：AM启动后ApplicationMasterLauncher以事件的形式把AM注册到AMLivelinessMonitor，以启动心跳监控
+- 步骤3：AM向ApplicationMasterService注册自己，并将自己的host、port等信息汇报给AMS
+- 步骤4：AM周期性向AMS汇报“心跳”信息
+- 步骤5：AMS收到心跳信息后，通知AMLivelinessMonitor更新该应用程序最近汇报心跳的时间
+- 步骤6：应用运行完成后，AM向AMS请求注销自己
+- 步骤7：AMS收到注销请求后，标注应用运行状态为完成，同时通知AMLivelinessMonitor移除对AM的心跳监控
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/ApplicationMaster启动过程.png?raw=true)
+
+
+
+- AMLivelinessMonitor
+- ApplicationMasterLauncher
+- ApplicationMasterService（AMS）
