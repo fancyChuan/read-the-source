@@ -87,7 +87,7 @@ RM采用事件驱动机制，内部所有服务和组件通过**中央异步调�
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/ApplicationMaster启动过程.png?raw=true)
 
 #### 3.2 三个服务的配合
-- [ApplicationMasterLauncher](http://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/amlauncher/ApplicationMasterLauncher.java)
+- [ApplicationMasterLauncher](https://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/amlauncher/ApplicationMasterLauncher.java)
     - 既是服务，也是事件处理器
     - 作为事件处理器处理AMLauncherEvent类型的事件，主要有两种：
         - LAUNCH：请求启动一个AM的事件。
@@ -99,10 +99,20 @@ RM采用事件驱动机制，内部所有服务和组件通过**中央异步调�
 - ApplicationMasterService（AMS）
     - 负责接收AM的请求：注册、心跳、清理
     - AM启动后要做的第一件事就是向RM注册，通过ApplicationMasterProtocol#registerApplicationMaster实现
-    - 心跳通过ApplicationMasterProtocol#allocate实现，有3个作用
+    - 心跳通过ApplicationMasterProtocol#allocate实现，有3个作用 
         - 请求支援
         - 获取新分配的资源
         - 形成周期性心跳
     - AM运行结束，通过ApplicationMasterProtocol#finishApplicationMaster实现
     
-    
+### 4. NodeManager管理模块
+- NMLivelinessMonitor
+    - 周期性遍历所有NM，如果在一定时间（yarn.nm.liveness-monitor.expiry-interval-ms配置，默认10min）内未汇报心跳，则认为死掉了，会把其上的所有Container置为失败
+- NodesListManager
+    - 管理exclude和include节点列表，可通过yarn.resourcemanager.nodes.include-path和yarn.resourcemanager.nodes.exclude-path配置
+    - 管理员可以通过 bin/yarn rmadmin -refreshNodes 动态加载上面的两个配置
+- ResourceTrackerService
+
+### 5. Application管理模块
+
+     
