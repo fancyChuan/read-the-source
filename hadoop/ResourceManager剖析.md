@@ -112,7 +112,11 @@ RM采用事件驱动机制，内部所有服务和组件通过**中央异步调�
     - 管理exclude和include节点列表，可通过yarn.resourcemanager.nodes.include-path和yarn.resourcemanager.nodes.exclude-path配置
     - 管理员可以通过 bin/yarn rmadmin -refreshNodes 动态加载上面的两个配置
 - ResourceTrackerService
-
+    - 负责处理来自NM的请求：注册、心跳
+    - NM启动的第一件事就是向RM注册，通过ResourceTracker#registerNodeManager实现
+    - 通过ResourceTracker#nodeHeartbeat汇报心跳
+    - 一个节点总的可用资源在NM启动的时候向RM注册，之后不可动态修改，需要重启（YARN-291在尝试引入动态修改的机制）
 ### 5. Application管理模块
 
-     
+
+   
