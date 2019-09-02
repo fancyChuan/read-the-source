@@ -117,6 +117,26 @@ RM采用事件驱动机制，内部所有服务和组件通过**中央异步调�
     - 通过ResourceTracker#nodeHeartbeat汇报心跳
     - 一个节点总的可用资源在NM启动的时候向RM注册，之后不可动态修改，需要重启（YARN-291在尝试引入动态修改的机制）
 ### 5. Application管理模块
-
+YARN中应用程序是一个比较宽泛的概念，一个应用可能启动多个运行实例，每个实例由一个ApplicationMaster以及一组该AM启动的任务组成
+- ApplicationACLsManager
+    - 默认情况下，任一个普通用户可以查看所有其他用户的应用程序。也可以在应用代码中指定，如下所示
+    - 一些运行在yarn上的计算引擎，比如MR，可以通过参数mapreduce.job.acl-view-job和mapreduce.job.acl-modify-job为应用设置权限
+```
+// 用户userX编写了代码，并做了授权
+ContainerLaunchContext ctx = Records.newRecord(ContainerLaunchContext.class);
+Map<ApplicationAccessType, String> acls = new HashMap<>();
+acls.put(ApplicationAccessType.VIEW_APP, "user1 group1"); // 授予用户user1和用户组group1查看权限
+acls.put(ApplicationAccessType.MODIFY_APP, "user1"); // 授予user1修改权限
+ctx.setApplicationACLs(acls);
+// 设置之后，应用的所有者userX、集群管理员（通过在yarn-site.xml中设置yarn.admin.acl）和user1具有查看和修改权限，group1具有查询权限
+```
+- RMAppManager： 管理应用程序的启动和关闭
+    - ClientRMService接收到客户端的提交应用请求之后，将调用RMAppManager#submitApplication创建一个RMApp对象，该对象负责维护这个应用的整个生命周期
+    - RMApp运行结束，向RMAppManager发送一个RMAppManagerEventType.APP_COMPLETED事件。RMAppManager收到事件后调用finishApplication进行收尾工作，包括：
+        - 将应用放到已完成应用列表中，列表大小默认为10000，可通过yarn.resourcemanager.max-completed-applications修改（这个列表是放在内存中的，超过后只能通过磁盘查看日志）
+        - 将应用从RMStateStore中移除。RMStateStore记录了应用的运行信息，便于集群故障重启后RM能从这些日志中恢复应用状态，避免全部重新运行
+- ContainerAllocationExpirer：
+    - AM收到一个Container不能长时间占用（会减低集群的利用率）
+    - 默认10min，可以通过yarn.resourcemanager.rm.container-allocation.expiry-interval-ms修改
 
    
