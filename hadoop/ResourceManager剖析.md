@@ -139,4 +139,33 @@ ctx.setApplicationACLs(acls);
     - AM收到一个Container不能长时间占用（会减低集群的利用率）
     - 默认10min，可以通过yarn.resourcemanager.rm.container-allocation.expiry-interval-ms修改
 
-   
+### 6. 状态机管理
+#### 6.1 RMApp状态机
+RMApp的实现类RMAppImpl，维护一个Application的完整生命周期，是RM的组成之一。
+- 记录了Application可能存在的各个状态（RMAppState）以及导致状态转移的事件（RMAppEvent）。状态转移的同时会触发一个行为，也就是回调函数
+- 保存了Application的基本信息和迄今为止所有运行尝试（Application Attempt）的信息
+
+如下图：一共9种状态、12种事件
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMApp状态机.png?raw=true)
+
+```java
+public enum RMAppState {
+  NEW,          // 初始状态
+  NEW_SAVING,   // 日志记录应用程序基本信息时就处于这个状态。
+  SUBMITTED,    // 应用状态已提交。客户端通过ApplicationClientProtocol#submitApplication提交应用，
+                // 通过合法性验证和日志记录后，RM创建一个RMAppAttemptImpl对象进行第一次尝试，并把APP状态设置为SUBMITTED
+  ACCEPTED,     // 资源调度器同意接受该应用之后所处的状态。应用除了在ClientRMService进行合法性检查，也需要结果资源调度器的合法性检查。比如是否达到应用提交次数的上限
+  RUNNING,      
+  REMOVING,     // todo：？？
+  FINISHING,    // AM通过ApplicationMasterProtocol#finishApplicationMaster通知RM自己运行结束
+  FINISHED,     // NM通过心跳汇报AM所在的Container运行结束，这个时候状态才为FINISHED
+  FAILED,       // 多种应用可能导致失败：OOM、bug、硬件故障等。
+                // 注意：接收到ATTEMPT_FAILED事件后不会立即进入该状态，而是先检查失败次数是否已达到上限（通过yarn.resourcemanager.am.max-attempts配置默认是2）
+  KILLED
+}
+```
+
+- RMAppAttempt： 维护一次运行尝试的生命周期
+- RMContainer： 维护了一个Container的运行周期，包括从创建到运行结束整个过程
+- RMNode： 为了一个NM的生命周期，包括从启动到运行结束整个过程
