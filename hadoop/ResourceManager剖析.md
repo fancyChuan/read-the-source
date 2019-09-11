@@ -145,10 +145,11 @@ RMApp的实现类RMAppImpl，维护一个Application的完整生命周期，是R
 - 记录了Application可能存在的各个状态（RMAppState）以及导致状态转移的事件（RMAppEvent）。状态转移的同时会触发一个行为，也就是回调函数
 - 保存了Application的基本信息和迄今为止所有运行尝试（Application Attempt）的信息
 
-如下图：一共9种状态、12种事件
+如下图：一共9种状态(RMAppState)、12种事件(RMAppEventType)
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMApp状态机.png?raw=true)
 
+状态种类：
 ```java
 public enum RMAppState {
   NEW,          // 初始状态
@@ -165,6 +166,32 @@ public enum RMAppState {
   KILLED
 }
 ```
+事件种类
+```java
+public enum RMAppEventType {
+  // Source: ClientRMService
+  START,                // 客户端通过ApplicationClientProtocol#submitApplication提交应用后触发该事件
+  RECOVER,              // 管理员开启应用恢复功能的话（默认不开启，通过yarn.resourcemanager.recovery.enable设置），
+                        // RM重启后回会向已提交但未运行的应用发送该事件
+  KILL,                 // ApplicationClientProtocol#forceKillApplication触发该事件
+  // Source: RMAppAttempt
+  APP_REJECTED,         // 情况1：submitApplication()提交时抛出IOException异常
+                        // 情况2：资源调度器认为应用非法（比如队列不存在或者已达到应用数目上限等）
+  APP_ACCEPTED,         // 资源调度器认为合法则触发该事件
+  ATTEMPT_REGISTERED,   // AM通过ApplicationMasterProtocol#registerApplicationMaster向RM注册时触发
+  ATTEMPT_UNREGISTERED, // todo：？？
+  ATTEMPT_FINISHED,     // NM通过心跳汇报AM所在的Container运行结束时触发
+  ATTEMPT_FAILED,       // AM运行失败时触发（可能硬件故障，也可能内部任务数目过多导致AM主动退出）
+  ATTEMPT_KILLED,       // AM被kill时触发
+  NODE_UPDATE,          // NM每次汇报心跳信息时触发，该事件广播给所有 todo：先关的应用程序？？
+
+  // Source: RMStateStore
+  APP_SAVED,            // 用户提交应用后，RM首先将应用的信息保存到磁盘上，一遍故障恢复使用。保存完成则触发
+  APP_REMOVED           // 
+}
+```
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMApp状态机事件来源.png?raw=true)
+
 
 - RMAppAttempt： 维护一次运行尝试的生命周期
 - RMContainer： 维护了一个Container的运行周期，包括从创建到运行结束整个过程
