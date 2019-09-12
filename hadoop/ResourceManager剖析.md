@@ -190,9 +190,22 @@ public enum RMAppEventType {
   APP_REMOVED           // 
 }
 ```
+各个事件的来源，主要是ClientRMService和RMAppAttemptImpl
+
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMApp状态机事件来源.png?raw=true)
 
+#### 6.2 RMAppAttempt状态机 
+RM中维护一次运行尝试的生命周期的数据结构，实现类是：RMAppAttemptImpl
+- 维护了一个状态机
+- 保存了本次运行尝试的基本信息，包括Container信息、AM Container对外tracking url和RPC端口等
+- 本质上也是维护了ApplicationMaster的生命周期（一次运行尝试中，最重要的组件就是ApplicationMaster）
 
-- RMAppAttempt： 维护一次运行尝试的生命周期
-- RMContainer： 维护了一个Container的运行周期，包括从创建到运行结束整个过程
-- RMNode： 为了一个NM的生命周期，包括从启动到运行结束整个过程
+RMAppAttemptImpl有13种状态（RMAppAttemptState）和15种事件（RMAppAttemptEvent)
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMAppAttempt状态机.png?raw=true)
+
+
+
+
+#### 6.3 RMContainer： 维护了一个Container的运行周期，包括从创建到运行结束整个过程
+#### 6.4 RMNode： 为了一个NM的生命周期，包括从启动到运行结束整个过程
