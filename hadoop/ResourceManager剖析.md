@@ -243,12 +243,21 @@ public enum RMAppAttemptEventType {
   ATTEMPT_SAVED,
   // Source: Scheduler
   APP_REJECTED,
-  APP_ACCEPTED,
-  // Source: RMAttemptImpl.recover
+  APP_ACCEPTED,     // 资源调度器对RMAppAttemptImpl做合法性检查，通过后发送该事件
   RECOVER
 }
 ```
+事件来源
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMAppAttempt状态机事件来源.png?raw=true)
+
+#### 6.3 RMContainer状态机 
+维护了一个Container的运行周期，包括从创建到运行结束整个过程，实现类 RMContainerImpl
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMContainer状态机.png?raw=true)
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMContainer状态机事件来源.png?raw=true)
 
 
-#### 6.3 RMContainer： 维护了一个Container的运行周期，包括从创建到运行结束整个过程
-#### 6.4 RMNode： 为了一个NM的生命周期，包括从启动到运行结束整个过程
+#### 6.4 RMNode状态机
+维护了一个NM的生命周期，包括从启动到运行结束整个过程
