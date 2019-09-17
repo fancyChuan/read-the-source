@@ -261,3 +261,7 @@ public enum RMAppAttemptEventType {
 
 #### 6.4 RMNode状态机
 维护了一个NM的生命周期，包括从启动到运行结束整个过程
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMNode状态机.png?raw=true)
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMNode状态机事件来源.png?raw=true)
