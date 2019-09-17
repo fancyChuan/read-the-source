@@ -265,3 +265,7 @@ public enum RMAppAttemptEventType {
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMNode状态机.png?raw=true)
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMNode状态机事件来源.png?raw=true)
+
+### 7. 几个常见行为分析
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/ApplicationMaster启动流程.png?raw=true)
