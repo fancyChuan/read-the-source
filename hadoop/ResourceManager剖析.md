@@ -267,5 +267,10 @@ public enum RMAppAttemptEventType {
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMNode状态机事件来源.png?raw=true)
 
 ### 7. 几个常见行为分析
+#### 7.1 启动ApplicationMaster
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/ApplicationMaster启动流程.png?raw=true)
+
+#### 7.2 申请和分配Container
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/Container分配和申请流程.png?raw=true)
