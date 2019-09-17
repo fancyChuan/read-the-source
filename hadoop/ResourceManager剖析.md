@@ -204,7 +204,50 @@ RMAppAttemptImpl有13种状态（RMAppAttemptState）和15种事件（RMAppAttem
 
 ![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/RMAppAttempt状态机.png?raw=true)
 
+基本状态
+```java
+public enum RMAppAttemptState {
+  NEW, SUBMITTED,   // RMAppImpl创建RMAppAttemptImpl后发送START事件，为RMAppAttemptImpl创建各种token，之后将其状态置为SUBMITTED
+  SCHEDULED,        // RMAppAttemptImpl被创建之后RM将其添加到ResourceScheduler中，通过资源调度器合法性检查后置为该状态 
+  ALLOCATED_SAVING, // RMAppAttemptImpl接收到Container之后将该Container信息写入磁盘，在信息保存之前处于该状态
+  ALLOCATED,        // Container信息保存后处于该状态(这个Container是用来启动ApplicationMaster的)
+  LAUNCHED,         // ApplicationMasterLauncher与NM通信以启动AM，此时 RMAppAttemptImpl 处于该状态 
+  RUNNING,          // AM启动成功后通过ApplicationMasterProtocol#registerApplicationMaster向RM注册，此时 RMAppAttemptImpl 处于该状态 
+  FAILED, KILLED,
+  FINISHING,        // AM通过ApplicationMasterProtocol#registerApplicationMaster通知RM自己将运行结束
+  FINISHED,         // NM通过心跳汇报AM所在的Container运行结束
+  LAUNCHED_UNMANAGED_SAVING, // AM直接在客户端启动（比如为方便对AM进行测试时），需要对AM记录日志，正在记录日志时 RMAppAttemptImpl 处于该状态
+  RECOVERED         // 管理员开启应用恢复功能的情况下RM重启之后从日志中恢复了RMAppAttemptImpl之后所处的状态
+}
+```
 
+```java
+public enum RMAppAttemptEventType {
+  // Source: RMApp
+  START,            // 收到该事件RMAppAttemptImpl进行一些初始化工作
+  KILL,
+  // Source: AMLauncher
+  LAUNCHED,
+  LAUNCH_FAILED,
+  // Source: AMLivelinessMonitor
+  EXPIRE,
+  // Source: ApplicationMasterService
+  REGISTERED,
+  STATUS_UPDATE,
+  UNREGISTERED,
+  // Source: Containers
+  CONTAINER_ACQUIRED,
+  CONTAINER_ALLOCATED,
+  CONTAINER_FINISHED,
+  // Source: RMStateStore
+  ATTEMPT_SAVED,
+  // Source: Scheduler
+  APP_REJECTED,
+  APP_ACCEPTED,
+  // Source: RMAttemptImpl.recover
+  RECOVER
+}
+```
 
 
 #### 6.3 RMContainer： 维护了一个Container的运行周期，包括从创建到运行结束整个过程
