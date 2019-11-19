@@ -100,10 +100,36 @@ public class UnmanagedAMLauncher {
     try {
       UnmanagedAMLauncher client = new UnmanagedAMLauncher();
       LOG.info("Initializing Client");
+      /* 初始化操作
+            1. 设置支持的参数，并直接从命令行中解析参数并完成赋值，而在DistributedShell中是分两步的（构造器中设置支持的参数，init函数解析参数并赋值）
+            2. 完成其他类属性的赋值，其中rmClient = YarnClient.createYarnClient() 跟DistributedShell一样，使用的是YarnClientImpl实现类
+       */
       boolean doRun = client.init(args);
       if (!doRun) {
         System.exit(0);
       }
+      /*
+        1. 启动客户端rmClient与RM通信
+        2. 创建一个app并获取appid
+        3. 完成ApplicationSubmissionContext appContext的赋值
+        4. 设置AM不需要RM管理： appContext.setUnmanagedAM(true);
+        5. 提交应用到RM上 rmClient.submitApplication(appContext)并监控，直到应用的状态变为YarnApplicationState.ACCEPTED
+            * 监控函数 private ApplicationReport monitorApplication(ApplicationId appId,
+              Set<YarnApplicationState> finalState)
+                每隔一秒检查状态：rmClient.getApplicationReport(appId);
+                如果状态满足终止条件之一便返回状态报告report
+                如果AM执行完成，并且10s后仍未收到RM可以终止的报告，就报错退出
+        6. 在一个单独的进程启动AM并监控，直到应用状态变为：KILLED、FAILED、FINISHED三种状态之中的一个
+            1> 联系RM检查状态是否为ACCEPTED
+            2> Credentials增加token
+            3> 创建tokenFile，然后chmod为600，并设置在exit时删除
+            4> 把第2步中处理的token等信息写入tokenFile
+            5> 设置AM启动需要的环境变量：NM_HOST为localhost、NM_HTTP_PORT=0、NM_PORT=0等
+            6> 在一个Process中运行：Process amProc = Runtime.getRuntime().exec(amCmd,envAMList)
+            7> 启动两个线程：Thread errThread、Thread outThread
+            8> 等待运行结束，并销毁进程 amProc
+        7. 处理最终的app状态报告，并关闭客户端rmClient
+       */
       client.run();
     } catch (Throwable t) {
       LOG.fatal("Error running Client", t);
@@ -232,7 +258,7 @@ public class UnmanagedAMLauncher {
       tokenFile.getAbsolutePath());
     
     String[] envAM = new String[envAMList.size()];
-    Process amProc = Runtime.getRuntime().exec(amCmd, envAMList.toArray(envAM));
+    Process amProc = Runtime.getRuntime().exec(amCmd, envAMList.toArray(envAM)); // todo: Runtime.getRuntime().exec() 需要进一步学习
 
     final BufferedReader errReader = 
         new BufferedReader(new InputStreamReader(amProc
@@ -348,7 +374,7 @@ public class UnmanagedAMLauncher {
       // launch AM
       launchAM(attemptId);
   
-      // Monitor the application for end state
+      // Monitor the application for end state // todo:上一步的启动AM和这一步的监控，居然能够是非阻塞的，需要了解细节
       appReport = monitorApplication(appId, EnumSet.of(
           YarnApplicationState.KILLED, YarnApplicationState.FAILED,
           YarnApplicationState.FINISHED));

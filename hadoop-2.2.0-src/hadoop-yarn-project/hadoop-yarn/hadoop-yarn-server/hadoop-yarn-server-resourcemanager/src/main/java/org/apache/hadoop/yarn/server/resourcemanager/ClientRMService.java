@@ -129,7 +129,7 @@ public class ClientRMService extends AbstractService implements
       RMDelegationTokenSecretManager rmDTSecretManager) {
     super(ClientRMService.class.getName());
     this.scheduler = scheduler;
-    this.rmContext = rmContext;
+    this.rmContext = rmContext; // CMT: 通过该对象可以获取RM中绝大部分信息，包括节点列表、队列信息、应用列表等。这样ClientRMService很容易通过该对象为客户端的请求作出应答。实现类是RMContextImpl
     this.rmAppManager = rmAppManager;
     this.applicationsACLsManager = applicationACLsManager;
     this.queueACLsManager = queueACLsManager;
@@ -146,7 +146,7 @@ public class ClientRMService extends AbstractService implements
   protected void serviceStart() throws Exception {
     Configuration conf = getConfig();
     YarnRPC rpc = YarnRPC.create(conf);
-    this.server =   
+    this.server =   // CMT：实现了RPC协议ApplicationClientProtocol
       rpc.getServer(ApplicationClientProtocol.class, this,
             clientBindAddress,
             conf, this.rmDTSecretManager,

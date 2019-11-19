@@ -5,6 +5,7 @@ import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.yarn.api.ContainerManagementProtocol;
 import org.apache.hadoop.yarn.api.protocolrecords.*;
+import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.impl.pb.TokenPBImpl;
@@ -14,6 +15,8 @@ import org.apache.hadoop.yarn.util.Records;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AM2NMDemo {
     ContainerManagementProtocol cm; // ContainerManagement对象
@@ -48,7 +51,10 @@ public class AM2NMDemo {
         // ctx.setServiceData();
         // ctx.setEnvironment();
         // ctx.setCommands();
-        // ctx.setApplicationACLs();
+        Map<ApplicationAccessType, String> acls = new HashMap<>();
+        acls.put(ApplicationAccessType.VIEW_APP, "user1 group1"); // 授予用户user1和用户组group1查看权限
+        acls.put(ApplicationAccessType.MODIFY_APP, "user1"); // 授予user1修改权限
+        ctx.setApplicationACLs(acls);
         /**
          * 1.3 创建一个启动Container的请求实例StartContainerRequest，有两个字段：
          *      container_launch_context: 1.2中封装了信息的ContainerLaunchContext对象

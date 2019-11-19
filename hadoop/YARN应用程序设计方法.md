@@ -112,7 +112,11 @@ NMClientAsyne.CallbackHandler类似的，也有6个回调函数。
 ### 4. YARN应用实例
 YARN自带了两个Application示例程序：DistributedShell和UNManagedAM
 #### 4.1 DistributedShell
-可以分布式运行shell命令的应用程序，使用示例
+可以分布式运行shell命令的应用程序，使用语法如下图：
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/DistributedShell参数含义及使用示例.png?raw=true)
+
+使用示例
 ```
 bin/hadoop jar share/hadoop/yarn/hadoop-yarn-applications-distributedshell-*.jar \
 org.apache.hadoop.yarn.applications.distributedshell.Client 
@@ -123,15 +127,34 @@ org.apache.hadoop.yarn.applications.distributedshell.Client
   --priority 10
 ```
 DistributedShell在源码中由三部分组成，分别为：
-- 客户端：[Client.java](https:github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/Client.java)
+- 客户端：[Client.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/Client.java)
     - 有三个构造函数：
         - public Client() throws Exception 
         - public Client(Configuration conf) throws Exception 使用自带的ApplicationMaster类
         - Client(String appMasterMainClass, Configuration conf) 可以指定使用的ApplicationMaster实现类
-    - 
-- AM实现：[ApplicationMaster.java](https:github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/ApplicationMaster.java)
-- 客户端和AM共用的常量：[DSConstans.java](https:github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/DSConstans.java)
+    - 启动客户端，并准备提交应用，比如AM所需的资源、执行的命令等
+    ```
+    # 组装后在AM中执行的shell命令
+    java -Xmx 350m org.apache.hadoop.yarn.applications.distributedshell.ApplicationMaster \
+    --container_menory 350 \
+    --num_containers 10 \ 
+    --priority 10 \
+    --shell_command ls \
+    1> $LOG_DIR/AppMaster.stdout \
+    2> $LOG_DIR/AppMaster.stderr
+    ```
+    - 提交应用并监控是否运行完成
+- AM实现：[ApplicationMaster.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/ApplicationMaster.java)
+    - 申请资源，并在资源没有达到或者任务失败时重新申请
+    - 通过一个新的线程联系NM启动Container并执行命令
+- 客户端和AM共用的常量：[DSConstans.java](https://github.com/fancychuan/read-the-source/tree/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/DSConstans.java)
 
+#### 4. Unmanaged AM
+AM需要占用一个Container，而该Container的位置不确定，给调试带来麻烦。为此引入Unmanaged AM，这种AM不需要RM启动和销毁，而是在客户端启动一个新的进程运行
+
+![image](https://github.com/fancyChuan/read-the-source/blob/master/hadoop/img/UnmannedAMLauncher使用方法及参数含义.png?raw=true)
+
+- 自带实现源码：[UnmanagedAMLauncher.java](https://github.com/fancyChuan/read-the-source/blob/master/hadoop-2.2.0-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-unmanaged-am-launcher/src/main/java/org/apache/hadoop/yarn/applications/unmanagedamlauncher/UnmanagedAMLauncher.java)
 
 ### 5. 源码阅读引导
 - 通信协议：

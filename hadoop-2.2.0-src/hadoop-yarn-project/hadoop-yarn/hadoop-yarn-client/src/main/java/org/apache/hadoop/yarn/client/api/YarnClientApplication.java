@@ -30,6 +30,8 @@ import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
  * Holder for the {@link GetNewApplicationResponse} and {@link
  * ApplicationSubmissionContext} objects created via {@link org.apache.hadoop
  * .yarn.client.api.YarnClient#createApplication()}
+ *
+ * todo：这个类只在一个地方使用到了，封装这个类的意义是什么？
  */
 public  class YarnClientApplication {
   private final GetNewApplicationResponse newAppResponse;

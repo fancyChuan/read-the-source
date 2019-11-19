@@ -227,12 +227,40 @@ public class ApplicationMaster {
   public static void main(String[] args) {
     boolean result = false;
     try {
+        /*
+            实例化一个对象，这一步只完成了YarnConfiguration实例化
+         */
       ApplicationMaster appMaster = new ApplicationMaster();
       LOG.info("Initializing ApplicationMaster");
+        /* 完成appMaster对象各种属性的初始化（赋值）操作
+            1. 设置命令行可以接受的参数，这一步跟Client中的设置类型一样
+            2. 解析传过来的命令行参数，new org.apache.commons.cli.GnuParser().parse(options, args)
+            3. 处理环境变量
+                1> 检查是否有CONTAINER_ID
+                    * 有：获取CONTAINER_ID，并拿到appAttemptID（该对象可获取到appid、clustertimestamp、attemptid）
+                    * 没有：说明在测试，从传入的命令行参数中获取
+                2> 检查是否有其他环境变量：APP_SUBMIT_TIME_ENV、NM_HOST、NM_HTTP_PORT、NM_PORT
+            4. 检查命令行参数是否有：shell_command、shell_env
+            5. 检查环境变量：DISTRIBUTEDSHELLSCRIPTLOCATION、DISTRIBUTEDSHELLSCRIPTTIMESTAMP、DISTRIBUTEDSHELLSCRIPTLEN
+         */
       boolean doRun = appMaster.init(args);
       if (!doRun) {
         System.exit(0);
       }
+      /* AM跟RM申请资源，并在NM启动Container完成计算任务
+            1. 拿到当前用户的权限凭证 Credentials（提供读写secret keys和tokens的工具）
+            2. 将相关secretKey/tokens写入DataOutputBuffer
+            3. 移除AM-RM tokens，并封装剩余所有的tokens
+            4. 启动amRMClient和nmClientAsync，并指定相应的事件处理器
+            5. 获得本机hostname，向RM注册自己：需要主机名、端口、trackingUrl
+            6. amRMClient申请需要的资源，直到所需的所有资源都申请完成
+            7. 执行finish()：
+                等所有事件线程执行完成，也就是整个application跑完。
+                调用nmClientAsync.stop()释放Container
+                处理application执行结果，修改相关状态值
+                amRMClient.stop()释放AM所在的Container
+            * 第4步中指定的事件处理器，回异步处理各类请求，todo：AM与RM、NM之间的事件处理值得细细品味
+       */
       result = appMaster.run();
     } catch (Throwable t) {
       LOG.fatal("Error running ApplicationMaster", t);
@@ -332,10 +360,10 @@ public class ApplicationMaster {
       dumpOutDebugInfo();
     }
 
-    Map<String, String> envs = System.getenv();
+    Map<String, String> envs = System.getenv(); // todo：这个地方为什么要获得环境变量？难道RM通知NM启动AM的时候会顺便设置环境变量？
 
-    if (!envs.containsKey(Environment.CONTAINER_ID.name())) {
-      if (cliParser.hasOption("app_attempt_id")) {
+    if (!envs.containsKey(Environment.CONTAINER_ID.name())) { // todo：没有获取到CONTAINER_ID，说明是测试环境？
+      if (cliParser.hasOption("app_attempt_id")) { // app_attempt_id是在测试才需要
         String appIdStr = cliParser.getOptionValue("app_attempt_id", "");
         appAttemptID = ConverterUtils.toApplicationAttemptId(appIdStr);
       } else {
@@ -397,7 +425,7 @@ public class ApplicationMaster {
       }
     }
 
-    if (envs.containsKey(DSConstants.DISTRIBUTEDSHELLSCRIPTLOCATION)) {
+    if (envs.containsKey(DSConstants.DISTRIBUTEDSHELLSCRIPTLOCATION)) { // todo: 这个环境变量是如何设置的，Client只是传递了，但是设置的动作应该是RM吧，那RM怎么在NM中设置的？
       shellScriptPath = envs.get(DSConstants.DISTRIBUTEDSHELLSCRIPTLOCATION);
 
       if (envs.containsKey(DSConstants.DISTRIBUTEDSHELLSCRIPTTIMESTAMP)) {
@@ -453,10 +481,10 @@ public class ApplicationMaster {
     LOG.info("Starting ApplicationMaster");
 
     Credentials credentials =
-        UserGroupInformation.getCurrentUser().getCredentials();
+        UserGroupInformation.getCurrentUser().getCredentials(); // todo：Credentials作用和权限控制细节
     DataOutputBuffer dob = new DataOutputBuffer();
     credentials.writeTokenStorageToStream(dob);
-    // Now remove the AM->RM token so that containers cannot access it.
+    // Now remove the AM->RM token so that containers cannot access it. // todo：为什么？出于什么考虑？
     Iterator<Token<?>> iter = credentials.getAllTokens().iterator();
     while (iter.hasNext()) {
       Token<?> token = iter.next();
@@ -464,7 +492,7 @@ public class ApplicationMaster {
         iter.remove();
       }
     }
-    allTokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
+    allTokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength()); // todo: 这种数据处理方式也值得学习
 
     AMRMClientAsync.CallbackHandler allocListener = new RMCallbackHandler();
     amRMClient = AMRMClientAsync.createAMRMClientAsync(1000, allocListener);
@@ -472,7 +500,7 @@ public class ApplicationMaster {
     amRMClient.start();
 
     containerListener = createNMCallbackHandler();
-    nmClientAsync = new NMClientAsyncImpl(containerListener);
+    nmClientAsync = new NMClientAsyncImpl(containerListener);// todo: 为什么跟amRMClient的实例化不一样？
     nmClientAsync.init(conf);
     nmClientAsync.start();
 
@@ -509,17 +537,17 @@ public class ApplicationMaster {
     // executed on them ( regardless of success/failure).
     for (int i = 0; i < numTotalContainers; ++i) {
       ContainerRequest containerAsk = setupContainerAskForRM();
-      amRMClient.addContainerRequest(containerAsk);
+      amRMClient.addContainerRequest(containerAsk); // todo: 申请资源的细节是怎么样的？
     }
     numRequestedContainers.set(numTotalContainers);
 
     while (!done
-        && (numCompletedContainers.get() != numTotalContainers)) {
+        && (numCompletedContainers.get() != numTotalContainers)) { // 这里状态值的变化是通过事件处理器RMCallbackHandler处理的
       try {
         Thread.sleep(200);
       } catch (InterruptedException ex) {}
     }
-    finish();
+    finish(); // todo：为什么这里要封装，有什么好处？
     
     return success;
   }
@@ -574,7 +602,20 @@ public class ApplicationMaster {
     
     amRMClient.stop();
   }
-  
+
+    /**
+     * AM-RM核心交互逻辑
+     *  1. onContainersCompleted()
+     *      1> 遍历Containers的申请结果
+     *          ContainerState必须为COMPLETE  有NEW/RUNNING/COMPLETE三种
+     *          检查ContainerExitStatus的值，有5种情况：SUCCESS、INVALID、ABORTED、DISKS_FAILED、PREEMPTED
+     *          根据exitstatus更新numCompletedContainers、numFailedContainers、numAllocatedContainers、numRequestedContainers的值
+     *      2> 确定需要重新申请资源的数量并重新向RM申请资源
+     *      3> 把进度汇报给RM
+     *  2. onContainersAllocated()
+     *      通过LaunchContainerRunnable这个类，使用ContainerManagementProtocol通知NM启动Container并执行任务
+     *      注意：LaunchContainerRunnable是在一个新的线程中执行的，保证主线程处于非阻塞状态
+     */
   private class RMCallbackHandler implements AMRMClientAsync.CallbackHandler {
     @SuppressWarnings("unchecked")
     @Override
@@ -600,7 +641,7 @@ public class ApplicationMaster {
             // counts as completed
             numCompletedContainers.incrementAndGet();
             numFailedContainers.incrementAndGet();
-          } else {
+          } else { // ABORTED状态，需要重试：重新申请资源
             // container was killed by framework, possibly preempted
             // we should re-try as the container was lost for some reason
             numAllocatedContainers.decrementAndGet();
@@ -608,7 +649,7 @@ public class ApplicationMaster {
             // we do not need to release the container as it would be done
             // by the RM
           }
-        } else {
+        } else { // 执行成功
           // nothing to do
           // container completed successfully
           numCompletedContainers.incrementAndGet();
@@ -627,8 +668,12 @@ public class ApplicationMaster {
           amRMClient.addContainerRequest(containerAsk);
         }
       }
-      
-      if (numCompletedContainers.get() == numTotalContainers) {
+
+        // todo: 这个地方怎么少了向RM汇报进度的代码？但是在 getProgress() 方法也有相应的操作
+        // float process = (float) numCompletedContainers.get() / numTotalContainers;
+        // amRMClient.setProcess(process); // 这个代码是否可以？
+
+        if (numCompletedContainers.get() == numTotalContainers) {
         done = true;
       }
     }
