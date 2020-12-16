@@ -84,8 +84,33 @@ directory 要么是 file，但是 znode 数据模型中的节点，没有这种�
 3、znode 的小知识
 - 临时节点下面不能挂着子节点，由此只能作为叶子节点，临时节点的生命周期跟会话绑定
 - 经典的用法：尽量少往 ZooKeeper 中写数据，写入的数据也不要特别大！ZooKeeper 只适合用来存储少量的关键数据！比如代表一个集群中到底谁是真正 active
-  leader 的信息数据
+  leader 的信息数据（比如hbase master以及hdfs）
 
 
 ### 3. watcher监听机制
+ZooKeeper 提供了数据的发布订阅功能，多个订阅者（客户端）可同时监听某一特定主题对象（ZNode节点），当该主题对象的自身状态发生变化时（例如节点内
+容发生变化，节点下的子节点列表发生个数变化），系统会主动通知订阅者。
+
+ZooKeeper 采用 Watcher 机制实现了发布/订阅功能。该机制在被订阅者对象发生变化的时候会**异步**的通知客户端，因此客户端不必在 Watcher 注册后轮询阻塞，
+从而减轻客户端的压力。
+
+客户端首先将 Watcher 注册到服务器上，同时将 Watcher 对象保存在客户端的 Watch 管理器中，当 Zookeeper 服务端监听的数据状态发生变化时，服务端会首先
+主动通知客户端，接着客户端的 Watch 管理器会触发相关 Watcher 来回调相应的处理逻辑，从而完成整体的数据发布/订阅流程。
+
+监听器 Watcher 的定义：
+```
+// 监听器抽象
+interface Watcher{
+// 该方法就是接收到服务端事件通知的监听回调方法。参数 event 有三个信息：
+// 1、KeeperState state zk链接的状态
+// 2、String znodePath 发生事件的znode节点
+// 3、EventType type 事件的类型
+void process(WatchedEvent event) throw Execption;
+}
+```
+
+
+一个 Watch 事件是一个一次性的触发器，当被设置了 Watch 的数据发生了改变的时候，则服务器将这个改变发送给设置了 Watch 的客户端，以便通知它们。
+
+#### ZooKeeper 的监听机制的工作原理：
 
