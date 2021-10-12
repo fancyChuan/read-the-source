@@ -114,3 +114,39 @@ void process(WatchedEvent event) throw Execption;
 
 #### ZooKeeper 的监听机制的工作原理：
 
+
+#### 监听机制的具体使用上
+1、注册监听的方式
+```
+zk.getData(znodePath, watcher);     // 关注节点的数据变化
+zk.exists(znodePath, watcher);      // 关注节点的存在与否的状态变化
+zk.getChildren(znodePath, watcher); // 关注节点的子节点个数变化
+```
+2、触发监听的方式
+```
+zk.setData()        // 更改数据，触发监听 zk.getData()
+zk.create()         // 创建节点，触发监听
+zk.delete()         // 删除节点
+```
+3、事件的类型有4种
+```
+NodeCreated // 节点被创建
+NodeDeleted // 节点被删除
+NodeDataChanged // 节点数据发生改变
+NodeChildrenChanged // 节点的子节点个数发生改变
+None
+```
+汇总一下，就是如下这张图：
+
+![image](images/zk监听机制-注册API与触发事件的对应关系.png)
+
+```
+zk1客户端注册监听：
+    zk1.getChildren("/xxx/parent", watcher) ==> 客户端 zk1 通过 getChildren 注册了一个监听： "/xxx/parent" 的子节点个数变化
+
+zk2客户端执行操作，触发监听：
+    zk2.setData("/xxx/parent", "newdata") ==> 触发客户端 zk1 就会收到 NodeDataChanged 事件
+    zk2.createNode("/xxx/parent/son1") ==> 触发客户端 zk1 接收到 NodeChildrenChanged
+    zk2.deleteNode("/xxx/parent/son2") ==> 触发客户端 zk1 接收到 NodeChildrenChanged
+    zk2.setData("/xxx/parent/son2", "newData") ==> 触发客户端 zk1 不会收到通知。通知监听了 /xxx/parent/son2 的客户端
+```
