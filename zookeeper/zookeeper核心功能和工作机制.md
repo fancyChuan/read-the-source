@@ -110,10 +110,14 @@ void process(WatchedEvent event) throw Execption;
 ```
 
 
-一个 Watch 事件是一个一次性的触发器，当被设置了 Watch 的数据发生了改变的时候，则服务器将这个改变发送给设置了 Watch 的客户端，以便通知它们。
+**一个 Watch 事件是一个一次性的触发器**，当被设置了 Watch 的数据发生了改变的时候，则服务器将这个改变发送给设置了 Watch 的客户端，以便通知它们。
+> zk没有取消注册的机制
 
 #### ZooKeeper 的监听机制的工作原理：
+![image](images/zk监听机制-工作原理.png)
 
+客户端中，还存在一个 WatchManager 管理服务： 当前这个客户端到底注册了那些节点的那些监听都被分门别类的进行了管理。当这个客户端接收到 ZooKeeper
+系统的事件通知：WatchedEvent， 那么 WatchManager 就会根据这个事件对象内部的 znodePath + type + state 来确定后续操作是什么。
 
 #### 监听机制的具体使用上
 1、注册监听的方式

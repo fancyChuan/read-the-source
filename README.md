@@ -12,7 +12,8 @@
 - [hive](./hive)
 
 
-
+- [zookeeper](./zookeeper)
+  - [zookeeper核心功能和工作机制](./zookeeper/zookeeper核心功能和工作机制.md)
 
 可视化框架
 - [davinci](./davinci)
