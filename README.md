@@ -19,6 +19,16 @@
 
 
 
+程序员能力模型
+- 需求分析
+- 架构设计
+- 架构选型
+- 开发代码
+- 运维部署
+- 责任归属
+> chatGPT新范式下能力模型
+> - Prompt能力、判断决策能力、商业思维能力、一定的IT能力
+
 大数据框架
 - [hadoop](./hadoop)
   - 阅读环境搭建：[hadoop源码阅读环境搭建.md](hadoop/hadoop源码阅读环境搭建.md)
@@ -31,6 +41,10 @@
 
 - [zookeeper](./zookeeper)
   - [zookeeper核心功能和工作机制](./zookeeper/zookeeper核心功能和工作机制.md)
+
+
+- [Spark](./spark)
+  - 
 
 可视化框架
 - [davinci](./davinci)
